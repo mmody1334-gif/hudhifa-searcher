@@ -1,84 +1,55 @@
-import express from 'express';
-import cors from 'cors';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import fs from 'fs';
-import path from 'path';
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
+const OpenAI = require("openai");
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(express.static('public'));
+app.use(express.json({ limit: "20kb" }));
+app.use(express.static(path.join(__dirname, "public")));
 
-const apiKey = (process.env.GEMINI_API_KEY || '').trim();
-const genAI = new GoogleGenerativeAI(apiKey);
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const REPORT_PATH = path.join(__dirname, "report.txt");
 
-app.post('/api/chat', async (req, res) => {
+const SYSTEM_PROMPT = `أنت المساعد الذكي الرسمي لمدرسة حذيفة بن محصن (5-12).
+مهمتك الوحيدة الإجابة عن أسئلة الزائرين اعتماداً على "تقرير التقويم الذاتي" المرفق أدناه.
+
+القواعد الصارمة:
+1. أجب حصراً من نص التقرير. لا تؤلف ولا تخمّن ولا تستخدم معلومات من خارجه.
+2. إذا لم تجد الإجابة في التقرير، قل بوضوح: "هذه المعلومة غير موجودة في التقرير."
+3. أجب بالعربية الفصحى المبسطة، وبإيجاز ودقة.
+4. استخدم نقاطاً عند وجود عدة عناصر، وجدول Markdown عند عرض أرقام أو مقارنات.
+5. اذكر الأرقام والنسب كما وردت تماماً، وأشر إلى اسم القسم أو المعيار إن أمكن.
+6. إذا كان السؤال لا علاقة له بالمدرسة أو التقرير، اعتذر بلطف ووجّه الزائر لسؤال متعلق بالتقرير.
+
+===== نص التقرير =====
+`;
+
+// قراءة التقرير عند كل طلب، فيظهر أي تعديل على report.txt دون إعادة برمجة
+function loadReport() {
+  return fs.readFileSync(REPORT_PATH, "utf8");
+}
+
+app.post("/api/ask", async (req, res) => {
+  const question = (req.body && req.body.question || "").toString().trim();
+  if (!question) return res.status(400).json({ error: "اكتب سؤالك أولاً." });
+  if (question.length > 1000) return res.status(400).json({ error: "السؤال طويل جداً." });
+
   try {
-    const { message } = req.body;
-    if (!message) return res.status(400).json({ error: 'يرجى كتابة السؤال.' });
-
-    if (!apiKey) {
-      return res.status(500).json({ error: 'مفتاح GEMINI_API_KEY غير موجود في إعدادات Render.' });
-    }
-
-    // قراءة ملف التقرير من جهازك
-    let reportContent = '';
-    const filePath = path.join(process.cwd(), 'report.txt');
-    if (fs.existsSync(filePath)) {
-      reportContent = fs.readFileSync(filePath, 'utf8');
-    } else {
-      return res.status(500).json({ error: 'ملف report.txt غير موجود!' });
-    }
-
-    const SYSTEM_PROMPT = `أنت المساعد الذكي لمدرسة حذيفة بن محصن.
-إليك النص الكامل لتقرير المدرسة:
-----------------------
-${reportContent}
-----------------------
-أجب على أسئلة المستخدم بدقة متناهية بناءً على التقرير فقط. ونسق الإجابة بشكل واضح.`;
-
-    // نستخدم الموديل السريع والمستقر
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const prompt = `${SYSTEM_PROMPT}\n\nسؤال المستخدم: ${message}`;
-    
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    
-    res.json({ reply: response.text() });
-
-  } catch (error) {
-    console.error("API Error:", error.message);
-    
-    // خطة الإنقاذ: لو سيرفر جوجل هنج، السيرفر بتاعك هيبحث في الملف ويجاوبك فوراً
-    try {
-        const filePath = path.join(process.cwd(), 'report.txt');
-        const content = fs.readFileSync(filePath, 'utf8');
-        
-        // استخراج الكلمات المهمة من سؤالك والبحث عنها في التقرير
-        const keywords = req.body.message.split(' ').filter(w => w.length > 3);
-        const lines = content.split('\n');
-        let foundLines = [];
-        
-        for (const line of lines) {
-            if (keywords.some(k => line.includes(k))) {
-                foundLines.push(line.trim());
-            }
-        }
-        
-        if (foundLines.length > 0) {
-            // تصفية السطور المكررة وعرض أهم 5 سطور
-            const uniqueLines = [...new Set(foundLines)].slice(0, 5);
-            const fallbackReply = `⚠️ **سيرفرات الذكاء الاصطناعي عليها ضغط مؤقت، لكن بحثت لك في التقرير واستخرجت التالي:**\n\n` 
-                                  + uniqueLines.map(l => `- ${l}`).join('\n\n');
-            return res.json({ reply: fallbackReply });
-        } else {
-            return res.json({ reply: `⚠️ **السيرفر مشغول حالياً ولا يوجد تطابق مباشر لكلماتك في التقرير.**\nبرجاء الانتظار 10 ثوانٍ وإعادة المحاولة.` });
-        }
-    } catch(fallbackErr) {
-        res.status(500).json({ error: `حدث خطأ غير متوقع: ${error.message}` });
-    }
+    const completion = await client.chat.completions.create({
+      model: MODEL,
+      temperature: 0.1,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT + loadReport() },
+        { role: "user", content: question },
+      ],
+    });
+    res.json({ answer: completion.choices[0].message.content });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "تعذّر الحصول على إجابة الآن. حاول مرة أخرى بعد قليل." });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+app.listen(PORT, () => console.log("Server running on port " + PORT));
