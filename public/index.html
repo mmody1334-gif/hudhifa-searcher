@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>محرك بحث حذيفة | الذكاء الاصطناعي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fafc;--card:#ffffff;--ink:#0f172a;--mute:#64748b;--acc:#0e6b6b;--acc-soft:#e6f3f3;--gold:#b8860b;--line:#e2e8f0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Cairo',sans-serif;line-height:1.7}
+.wrap{max-width:920px;margin:0 auto;padding:16px 16px 60px}
+.hero{background:var(--card);border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.05);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;border-bottom:5px solid var(--gold);margin-bottom:20px}
+.hero .lg{height:clamp(52px,8vw,80px);object-fit:contain}
+.hero .mid{text-align:center;flex:1}
+.hero .t1{font-weight:900;font-size:clamp(1.4rem,4.5vw,2.3rem);color:var(--acc);line-height:1.2}
+.hero .t2{font-weight:800;font-size:clamp(0.95rem,3vw,1.35rem);color:var(--gold)}
+.hero .sup{margin-top:4px;font-size:clamp(0.75rem,2.2vw,0.9rem);color:var(--mute)}
+.hero .sup b{color:var(--ink)}
+.chat-window{display:flex;flex-direction:column;gap:16px;margin-bottom:20px;min-height:300px}
+.msg{border-radius:20px;padding:14px 20px;max-width:90%}
+.msg.user{background:var(--acc);color:#fff;align-self:flex-start}
+.msg.bot{background:var(--card);border:1px solid var(--line);align-self:stretch;max-width:100%;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
+.msg.bot .title{font-weight:800;color:var(--gold);font-size:0.88rem;margin-bottom:8px}
+.msg.bot table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.92rem}
+.msg.bot th,.msg.bot td{border:1px solid var(--line);padding:6px 12px;text-align:right}
+.msg.bot th{background:var(--acc-soft);color:var(--acc)}
+.input-box{display:flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--line);border-radius:99px;padding:6px 12px 6px 20px;box-shadow:0 6px 22px rgba(0,0,0,0.04)}
+.input-box:focus-within{border-color:var(--acc);box-shadow:0 6px 25px rgba(14,107,107,0.2)}
+.input-box input{flex:1;border:0;background:none;color:var(--ink);font:inherit;font-size:1.05rem;padding:8px 4px;outline:none}
+.input-box button{border:0;border-radius:99px;background:var(--acc);color:#fff;font-weight:700;padding:9px 24px;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.chip{background:var(--bg);border:1px solid var(--line);color:var(--acc);padding:5px 14px;border-radius:99px;font-size:0.85rem;cursor:pointer;font-weight:600}
+.chip:hover{background:var(--acc-soft)}
+.ft{text-align:center;color:var(--mute);font-size:0.85rem;margin-top:40px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="mid">
+      <div class="t1">محرك بحث حذيفة</div>
+      <div class="t2">المساعد الذكي لتقرير التقويم الذاتي</div>
+      <div class="sup">
+        <div><b>مدرسة حذيفة بن محصن للتعليم الأساسي (5-12)</b></div>
+        <div>تحت إشراف د. بدر بن عبد الله الكعبي</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="chat-window" id="chat">
+    <div class="msg bot">
+      <div class="title">✨ مرحباً بك في المساعد الذكي لمدرسة حذيفة</div>
+      <p>أنا متصل بنموذج <b>Gemini Live</b> ومحمّل بكامل بيانات تقرير التقويم الذاتي للمدرسة 2026/2027م. اسألني عن أي نسب أو مقارنات أو كادر تدريسي وسأجيبك فوراً.</p>
+      <div class="chips">
+        <button class="chip" onclick="ask('كم نسبة إتقان الصف العاشر في جميع المواد؟')">نسب إتقان الصف العاشر</button>
+        <button class="chip" onclick="ask('من هو معلم الأحياء وما هي نتائجه؟')">معلم الأحياء ونتائجه</button>
+        <button class="chip" onclick="ask('ما هي مواد التدخل السريع في التقرير؟')">مواد التدخل السريع</button>
+        <button class="chip" onclick="ask('ما هي مشروعات المدرسة وفترات تنفيذها؟')">مشروعات المدرسة</button>
+        <button class="chip" onclick="ask('كم عدد الطلبة والمعلمين وجنسياتهم؟')">إحصائيات الكادر والطلبة</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-box">
+    <input type="text" id="q" placeholder="اكتب سؤالك هنا... (مثال: قارن بين نسب العاشر والتاسع)">
+    <button id="send">إرسال</button>
+  </div>
+
+  <div class="ft">مدرسة حذيفة بن محصن (5-12) · تقرير التقويم الذاتي · تحت إشراف د. بدر بن عبد الله الكعبي</div>
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const qInput = document.getElementById('q');
+const sendBtn = document.getElementById('send');
+
+function append(cls, html) {
+  const d = document.createElement('div');
+  d.className = `msg ${cls}`;
+  d.innerHTML = html;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+  return d;
+}
+
+async function ask(txt) {
+  const query = txt || qInput.value.trim();
+  if (!query) return;
+  qInput.value = '';
+
+  append('user', query);
+  const loading = append('bot', '<div class="title">🤖 جاري التحليل...</div><p>يتم تحليل استفسارك عبر الذكاء الاصطناعي...</p>');
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: query })
+    });
+    const data = await res.json();
+    let text = (data.reply || data.error)
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+    loading.innerHTML = `<div class="title">🤖 إجابة الذكاء الاصطناعي المباشرة</div>${text}`;
+  } catch (err) {
+    loading.innerHTML = `<div class="title" style="color:red">⚠️ خطأ</div><p>تعذر الاتصال بالخادم، تأكد من تشغيل الخادم الخلفي.</p>`;
+  }
+}
+
+sendBtn.onclick = () => ask();
+qInput.onkeydown = (e) => { if (e.key === 'Enter') ask(); };
+</script>
+</body>
+</html>
