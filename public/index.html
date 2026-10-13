@@ -8,35 +8,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root{--bg:#f4f2ea;--card:#fff;--ink:#1c2826;--mute:#667370;--acc:#0e6b6b;--gold:#b8860b;--soft:#e4f1ef;--line:#e3e0d3;--mk:#fff1b8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1816;--card:#18221f;--ink:#e7efec;--mute:#93a39f;--acc:#4fc1b8;--gold:#e0b44a;--soft:#1d302d;--line:#2a3a36;--mk:#5a4a12}}
-:root[data-theme="dark"]{--bg:#0f1816;--card:#18221f;--ink:#e7efec;--mute:#93a39f;--acc:#4fc1b8;--gold:#e0b44a;--soft:#1d302d;--line:#2a3a36;--mk:#5a4a12}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,"Segoe UI",Tahoma,sans-serif;line-height:1.8; position: relative; min-height: 100vh;}
 
-/* حاوية الدودلز في الخلفية بالكامل */
-#bg-doodles {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1;
-    pointer-events: none;
-    overflow: hidden;
-}
-.dd {
-    position: absolute;
-    left: var(--x);
-    top: var(--y);
-    width: var(--s);
-    height: var(--s);
-    color: var(--c);
-    opacity: 0.1; /* شفافية مريحة جداً للعين */
-    transform: rotate(var(--r));
-    animation: fl 10s ease-in-out infinite; /* حركة بطيئة وهادئة */
-    animation-delay: var(--d);
-}
+#bg-doodles { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; }
+.dd { position: absolute; left: var(--x); top: var(--y); width: var(--s); height: var(--s); color: var(--c); opacity: 0.1; transform: rotate(var(--r)); animation: fl 10s ease-in-out infinite; animation-delay: var(--d); }
 .dd use{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @keyframes fl{50%{transform:translateY(-8px) rotate(calc(var(--r) + 4deg))}}
 
@@ -50,7 +27,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,"Segoe UI"
 .s .hero{padding:8px 14px}.s .lg{height:clamp(35px,8vw,60px)}.s .t1{font-size:clamp(1.1rem,4vw,1.6rem)}.s .t2{font-size:clamp(.85rem,3vw,1.15rem)}.s .sup{display:none}
 
 .home{text-align:center;padding:34px 0 8px}.s .home{display:none}
-.home p{color:var(--mute);margin:0 0 18px}
 
 .bar{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--line);border-radius:99px;padding:5px 8px 5px 18px;box-shadow:0 3px 18px rgba(0,0,0,.06)}
 .bar:focus-within{border-color:var(--acc);box-shadow:0 4px 22px rgba(14,107,107,.2)}
@@ -61,15 +37,15 @@ button{font:inherit;cursor:pointer}
 #as:disabled{opacity:.5}
 
 .nav{display:flex;gap:6px;justify-content:center;margin:16px 0 2px}
-.nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 24px;border-radius:99px;font-weight:600}
-.nav button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 24px;border-radius:99px;font-weight:600; transition: 0.2s;}
+.nav button.on{background:var(--acc);color:#fff;border-color:var(--acc); box-shadow:0 4px 10px rgba(14,107,107,.2);}
 
 .msgs{display:flex;flex-direction:column;gap:12px;margin-top:14px;padding-bottom:10px}
 .m{border-radius:18px;padding:15px 20px;overflow-wrap:anywhere; line-height: 1.7;}
 .m.u{background:var(--acc);color:#fff;align-self:flex-start;max-width:88%; box-shadow:0 4px 10px rgba(14,107,107,.2);}
 .m.a{background:var(--card);border:1px solid var(--line);align-self:stretch; box-shadow:0 4px 15px rgba(0,0,0,0.05);}
 .who{font-size:.9rem;font-weight:700;color:var(--gold); margin-bottom: 8px;}
-.m p{margin:.3em 0}.m ul,.m ol{margin:.3em 0;padding-inline-start:1.3em}.m h4{margin:.6em 0 .2em;color:var(--acc)}
+.m p{margin:.3em 0}
 
 .qs{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
 .qchip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 15px;border-radius:99px;font-size:.9rem;text-align:right; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
@@ -86,11 +62,13 @@ button{font:inherit;cursor:pointer}
 @media(max-width:520px){.facts{grid-template-columns:repeat(2,1fr)}}
 .spinner { animation: spin 1s linear infinite; display: inline-block;}
 @keyframes spin { 100% { transform: rotate(360deg); } }
+.highlight { background-color: var(--mk); border-radius: 3px; padding: 0 3px; }
+.search-result-item { border-bottom: 1px solid var(--line); padding: 10px 0; }
+.search-result-item:last-child { border-bottom: none; }
 </style>
 </head>
 <body>
 
-<!-- خلفية الدودلز الموزعة على كامل الشاشة بحجم صغير -->
 <div id="bg-doodles">
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
     <symbol id="d-pencil" viewBox="0 0 48 48"><path d="M8 40l2-8L32 10l6 6L16 38z M28 14l6 6 M8 40l8-2"/></symbol>
@@ -103,10 +81,9 @@ button{font:inherit;cursor:pointer}
     <symbol id="d-globe" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><path d="M6 24h36 M24 6c-8 9-8 27 0 36 M24 6c8 9 8 27 0 36"/></symbol>
     <symbol id="d-school" viewBox="0 0 48 48"><path d="M4 42h40 M8 42V20l16-10 16 10v22 M20 42V30h8v12 M24 10V4h6"/></symbol>
     <symbol id="d-calc" viewBox="0 0 48 48"><rect x="10" y="4" width="28" height="40" rx="3"/><rect x="15" y="9" width="18" height="8"/><path d="M16 24h2M23 24h2M30 24h2M16 31h2M23 31h2M30 31h2M16 38h2M23 38h2M30 38h2"/></symbol>
-    <symbol id="d-palm" viewBox="0 44V22 M24 22c-4-8-12-8-16-6 M24 22c4-8 12-8 16-6 M24 22c-2-9-8-13-14-12 M24 22c2-9 8-13 14-12 M24 22V8"/></symbol>
+    <symbol id="d-palm" viewBox="0 0 48 48"><path d="M24 44V22 M24 22c-4-8-12-8-16-6 M24 22c4-8 12-8 16-6 M24 22c-2-9-8-13-14-12 M24 22c2-9 8-13 14-12 M24 22V8"/></symbol>
     <symbol id="d-flask" viewBox="0 0 48 48"><path d="M18 4h12 M20 4v14L8 40a3 3 0 003 4h26a3 3 0 003-4L28 18V4 M14 32h20"/></symbol>
   </defs></svg>
-  <!-- توزيع عشوائي مريح في كامل الشاشة بأحجام صغيرة (20px - 30px) -->
   <svg class="dd" style="--x:8%;--y:12%;--s:28px;--r:-15deg;--c:var(--acc);--d:0s"><use href="#d-pencil"/></svg>
   <svg class="dd" style="--x:85%;--y:18%;--s:30px;--r:10deg;--c:var(--gold);--d:-1s"><use href="#d-book"/></svg>
   <svg class="dd" style="--x:15%;--y:45%;--s:32px;--r:8deg;--c:var(--acc);--d:-2s"><use href="#d-cap"/></svg>
@@ -123,8 +100,7 @@ button{font:inherit;cursor:pointer}
 
 <div class="wrap" id="app">
   <header class="hero">
-    <!-- صورة وزارة التربية والتعليم -->
-    <img class="lg" src="image_f93b2f.png" alt="وزارة التعليم">
+    <img class="lg" src="image_f93b2f.png.png" onerror="this.src='https://upload.wikimedia.org/wikipedia/ar/thumb/9/91/Oman_Ministry_of_Education_Logo.svg/512px-Oman_Ministry_of_Education_Logo.svg.png'" alt="وزارة التعليم">
     
     <div class="mid">
       <div class="t1">باحث حذيفة بن محصن</div>
@@ -135,12 +111,12 @@ button{font:inherit;cursor:pointer}
       </div>
     </div>
 
-    <!-- صورة رؤية عمان -->
-    <img class="lg" src="image_f93b4d.png" alt="رؤية عُمان 2040">
+    <img class="lg" src="image_f93b4d.png.png" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Oman_Vision_2040_Logo.svg/512px-Oman_Vision_2040_Logo.svg.png'" alt="رؤية عُمان 2040">
   </header>
 
   <nav class="nav" id="nav">
-      <button class="on" data-m="ask"><i class="fa-solid fa-robot"></i> اسأل الباحث</button>
+      <button class="on" data-m="ask" onclick="setMode('ask')"><i class="fa-solid fa-robot"></i> اسأل الذكاء الاصطناعي</button>
+      <button data-m="search" onclick="setMode('search')"><i class="fa-solid fa-magnifying-glass"></i> بحث في التقرير (مجاني)</button>
   </nav>
 
   <section class="home">
@@ -156,7 +132,7 @@ button{font:inherit;cursor:pointer}
     <div class="msgs" id="msgs"></div>
     <div class="ib">
       <div class="bar">
-        <input id="aq" placeholder="اسأل عن نسب أو أسماء أو أي تفصيلة في التقرير…" autocomplete="off" enterkeyhint="send">
+        <input id="aq" placeholder="اسأل الذكاء الاصطناعي عن أي معلومة في التقرير وسيقوم بتحليلها..." autocomplete="off" enterkeyhint="send">
         <button id="as" onclick="ask()">إرسال</button>
       </div>
       <div class="tools">
@@ -167,8 +143,27 @@ button{font:inherit;cursor:pointer}
 </div>
 
 <script>
-    const EX = ['من هو معلم الاحياء بالمدرسة؟', 'كم عدد الطلاب؟', 'ما هي نسبة النجاح في الإنجليزي عاشر؟', 'ما هي مشروعات المدرسة؟'];
+    const EX_ASK = ['مين مدرس الأحياء؟', 'كم عدد الطلاب الإجمالي؟', 'ما هي التحديات في المدرسة؟'];
+    const EX_SEARCH = ['الطاقة الشمسية', 'أحمد بن راشد', 'الموهوبين', 'نواحي القصور'];
+    
     let busy = false;
+    let currentMode = 'ask';
+    let cachedReport = "";
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.nav button').forEach(b => {
+            b.classList.toggle('on', b.dataset.m === mode);
+        });
+        
+        const input = document.getElementById('aq');
+        if (mode === 'ask') {
+            input.placeholder = "اسأل الذكاء الاصطناعي عن أي معلومة وسيحللها لك...";
+        } else {
+            input.placeholder = "ابحث بالكلمة عن أي جملة أو تفصيلة داخل ملف التقرير...";
+        }
+        resetChat();
+    }
 
     function addMsg(type, htmlContent) {
         const msgDiv = document.createElement('div');
@@ -181,10 +176,16 @@ button{font:inherit;cursor:pointer}
 
     function resetChat() {
         document.getElementById('msgs').innerHTML = '';
-        addMsg('a', `<div class="who">✨ باحث حذيفة</div><p>أهلاً بك! أنا المساعد الذكي لمدرسة حذيفة بن محصن. اسألني أي سؤال عن تقرير التقويم الذاتي وسأجيبك بدقة.</p>
-        <div class="qs">${EX.map(q => `<button class="qchip" onclick="document.getElementById('aq').value='${q}';ask()">${q}</button>`).join('')}</div>`);
         document.body.classList.remove('s');
         document.getElementById('aq').value = '';
+        
+        const suggestions = currentMode === 'ask' ? EX_ASK : EX_SEARCH;
+        const welcomeText = currentMode === 'ask' 
+            ? "أهلاً بك! أنا المساعد الذكي لمدرسة حذيفة. اسألني أي سؤال معقد وسأقرأ التقرير لأجيبك."
+            : "أهلاً بك في البحث السريع. أدخل كلمة أو اسم وسأقوم باستخراج جميع السطور التي تحتوي عليها من التقرير مباشرة.";
+            
+        addMsg('a', `<div class="who">✨ باحث حذيفة (${currentMode === 'ask' ? 'الذكاء الاصطناعي' : 'بحث سريع'})</div><p>${welcomeText}</p>
+        <div class="qs">${suggestions.map(q => `<button class="qchip" onclick="document.getElementById('aq').value='${q}';ask()">${q}</button>`).join('')}</div>`);
     }
 
     document.getElementById('aq').addEventListener('keypress', function (e) {
@@ -201,44 +202,81 @@ button{font:inherit;cursor:pointer}
         input.value = '';
         busy = true;
         document.getElementById('as').disabled = true;
-        document.body.classList.add('s'); // إخفاء الحقائق عند بدء المحادثة
+        document.body.classList.add('s'); // إخفاء الحقائق وبدء العرض
 
-        // إضافة رسالة المستخدم
         addMsg('u', q);
 
-        // إضافة رسالة انتظار (جاري التحليل)
-        const loadingMsg = addMsg('a', '<div class="who">✨ باحث حذيفة</div><p style="color:var(--mute)"><i class="fa-solid fa-circle-notch spinner"></i> جاري البحث في التقرير...</p>');
-
-        try {
-            // الاتصال بخادم OpenAI (server.js) الخاص بك
-            const response = await fetch('/api/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: q })
-            });
-
-            const data = await response.json();
-
-            if (data.error) {
-                loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ</div><p>${data.error}</p>`;
-            } else {
-                // تنسيق الرد (استبدال الأسطر والخط العريض)
-                let formattedAnswer = data.answer.replace(/\n/g, '<br>');
-                formattedAnswer = formattedAnswer.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        if (currentMode === 'search') {
+            // مسار البحث المجاني (Local Search)
+            const loadingMsg = addMsg('a', '<div class="who">🔍 جاري البحث...</div><p style="color:var(--mute)"><i class="fa-solid fa-circle-notch spinner"></i> أبحث في سطور التقرير...</p>');
+            
+            try {
+                if (!cachedReport) {
+                    const res = await fetch('/api/report');
+                    if(res.ok) {
+                        cachedReport = await res.text();
+                    } else {
+                        throw new Error("لم أتمكن من قراءة التقرير");
+                    }
+                }
                 
-                loadingMsg.innerHTML = `<div class="who">✨ باحث حذيفة</div><p>${formattedAnswer}</p>`;
+                // البحث عن الكلمة
+                const lines = cachedReport.split('\n');
+                let foundLines = [];
+                for (let line of lines) {
+                    if (line.trim().length > 5 && line.includes(q)) {
+                        // تظليل الكلمة المبحوث عنها
+                        let highlightedLine = line.replace(new RegExp(q, 'g'), `<span class="highlight">${q}</span>`);
+                        foundLines.push(highlightedLine);
+                    }
+                }
+                
+                // عرض النتائج
+                if (foundLines.length > 0) {
+                    let resultsHTML = foundLines.map(l => `<div class="search-result-item">- ${l}</div>`).join('');
+                    loadingMsg.innerHTML = `<div class="who">🔍 تم العثور على (${foundLines.length}) نتيجة لـ "${q}":</div><div>${resultsHTML}</div>`;
+                } else {
+                    loadingMsg.innerHTML = `<div class="who">🔍 نتيجة البحث</div><p>لم أجد أي سطر يحتوي على كلمة "${q}" في التقرير.</p>`;
+                }
+            } catch (error) {
+                loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ</div><p>حدثت مشكلة أثناء محاولة قراءة التقرير من الخادم.</p>`;
+            } finally {
+                busy = false;
+                document.getElementById('as').disabled = false;
+                input.focus();
             }
 
-        } catch (error) {
-            loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ في الاتصال</div><p>تعذر الاتصال بالخادم. تأكد من أن السيرفر يعمل بشكل صحيح.</p>`;
-        } finally {
-            busy = false;
-            document.getElementById('as').disabled = false;
-            input.focus();
+        } else {
+            // مسار الذكاء الاصطناعي (OpenAI API)
+            const loadingMsg = addMsg('a', '<div class="who">✨ باحث حذيفة</div><p style="color:var(--mute)"><i class="fa-solid fa-circle-notch spinner"></i> جاري تحليل التقرير والإجابة...</p>');
+
+            try {
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: q })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ</div><p>${data.error}</p>`;
+                } else {
+                    let formattedAnswer = data.answer.replace(/\n/g, '<br>');
+                    formattedAnswer = formattedAnswer.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                    loadingMsg.innerHTML = `<div class="who">✨ الذكاء الاصطناعي</div><p>${formattedAnswer}</p>`;
+                }
+
+            } catch (error) {
+                loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ في الاتصال</div><p>تعذر الاتصال بالخادم. تأكد من أن السيرفر يعمل بشكل صحيح.</p>`;
+            } finally {
+                busy = false;
+                document.getElementById('as').disabled = false;
+                input.focus();
+            }
         }
     }
 
-    // تهيئة المحادثة عند تحميل الصفحة
     resetChat();
 </script>
 </body>
