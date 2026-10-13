@@ -66,27 +66,20 @@ button{font:inherit;cursor:pointer}
 
 /* تنسيقات النافذة المنبثقة (Modal) لملف التقرير */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px; backdrop-filter: blur(4px); }
-.modal-content { background: var(--bg); width: 100%; max-width: 800px; height: 85vh; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: 1px solid var(--line); }
+.modal-content { background: var(--bg); width: 100%; max-width: 900px; height: 85vh; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: 1px solid var(--line); }
 .modal-header { padding: 15px 20px; background: var(--card); border-bottom: 2px solid var(--acc); display: flex; justify-content: space-between; align-items: center; }
 .modal-title { font-weight: 800; color: var(--acc); font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
 .modal-close { background: var(--soft); border: none; color: var(--acc); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
 .modal-close:hover { background: var(--acc); color: #fff; }
-.modal-body { padding: 20px; overflow-y: auto; flex: 1; line-height: 2.2; font-size: 1rem; color: var(--ink); background: var(--card); }
-.active-line { background-color: var(--soft); padding: 15px; border-radius: 10px; border-right: 4px solid var(--acc); display: block; margin: 15px 0; font-weight: 600; box-shadow: 0 2px 10px rgba(14,107,107,0.1); }
-.report-line { display: block; margin-bottom: 5px; color: #555; }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; line-height: 1.8; font-size: 0.95rem; color: var(--ink); background: var(--card); }
 
-/* تنسيقات جديدة لترتيب بيانات الجداول بشكل أنيق */
-.table-data-pill {
-    display: inline-block;
-    background: var(--soft);
-    color: var(--acc);
-    padding: 2px 10px;
-    border-radius: 20px;
-    margin: 4px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border: 1px solid rgba(14,107,107,0.2);
-}
+/* تنسيق الجداول الحقيقية داخل النافذة المنبثقة لتعرض البيانات بانتظام */
+.report-table { width: 100%; border-collapse: collapse; margin: 10px 0; background: #fff; font-size: 0.9rem; }
+.report-table th, .report-table td { border: 1px solid var(--line); padding: 8px 12px; text-align: right; }
+.report-table th { background: var(--soft); color: var(--acc); font-weight: 700; }
+.active-row { background-color: var(--mk) !important; font-weight: bold; }
+
+.report-line { display: block; margin-bottom: 6px; color: #444; padding: 4px 8px; border-radius: 4px; }
 </style>
 </head>
 <body>
@@ -168,11 +161,11 @@ button{font:inherit;cursor:pointer}
 <div class="modal-overlay" id="fileModal">
   <div class="modal-content">
     <div class="modal-header">
-      <div class="modal-title"><i class="fa-solid fa-file-lines"></i> عرض من ملف التقرير</div>
+      <div class="modal-title"><i class="fa-solid fa-file-lines"></i> عرض من ملف التقرير الأصلي</div>
       <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body" id="modalBody">
-      <!-- محتوى الملف سيتم حقنه هنا -->
+      <!-- محتوى الملف سيتم عرضه هنا بشكل منسق -->
     </div>
   </div>
 </div>
@@ -187,7 +180,6 @@ button{font:inherit;cursor:pointer}
 
     function setMode(mode) {
         currentMode = mode;
-        
         document.querySelectorAll('.nav button').forEach(b => {
             b.classList.toggle('on', b.dataset.m === mode);
         });
@@ -265,18 +257,35 @@ button{font:inherit;cursor:pointer}
         return new RegExp(`(${flexible})`, 'gi');
     }
 
-    // دالة لتنسيق أسطر الجداول (التي تحتوي على علامة |) وتحويلها لبطاقات أنيقة
-    function formatTableLine(lineText) {
-        if (lineText.includes('|')) {
-            const parts = lineText.split('|').map(p => p.trim()).filter(p => p.length > 0);
-            if (parts.length > 0) {
-                return parts.map(p => `<span class="table-data-pill">${p}</span>`).join(' ');
+    // دالة ذكية لتحويل أسطر الجداول (المفصولة بـ |) إلى جداول HTML حقيقية ومنسقة
+    function parseLineToHTML(lineText, isTarget, highlightRegex) {
+        let cleanLine = lineText.trim();
+        if (cleanLine.includes('|')) {
+            let cells = cleanLine.split('|').map(c => c.trim()).filter(c => c.length > 0);
+            if (cells.length > 1) {
+                let cellsHtml = cells.map(cell => {
+                    if (isTarget && highlightRegex) {
+                        cell = cell.replace(highlightRegex, `<span class="highlight">$1</span>`);
+                    }
+                    return `<td>${cell}</td>`;
+                }).join('');
+                
+                let rowClass = isTarget ? 'active-row' : '';
+                return `<table class="report-table"><tr class="${rowClass}">${cellsHtml}</tr></table>`;
             }
         }
-        return lineText;
+        
+        // النص العادي
+        if (isTarget && highlightRegex) {
+            cleanLine = cleanLine.replace(highlightRegex, `<span class="highlight">$1</span>`);
+        }
+        
+        if (isTarget) {
+            return `<div id="target-line" class="active-line">${cleanLine}</div>`;
+        }
+        return `<span class="report-line">${cleanLine}</span>`;
     }
 
-    // دالة عرض النافذة المنبثقة بكامل الملف وتحديد السطر
     function openFileContext(targetIndex, queryText) {
         const modal = document.getElementById('fileModal');
         const body = document.getElementById('modalBody');
@@ -286,33 +295,26 @@ button{font:inherit;cursor:pointer}
         let htmlParts = [];
 
         for(let i=0; i<lines.length; i++) {
-            let l = lines[i].trim();
-            if(l.length === 0) {
-                htmlParts.push('<br>');
+            let l = lines[i];
+            if(l.trim().length === 0) {
+                htmlParts.push('<div style="height:10px;"></div>');
                 continue;
             }
             
-            // تنسيق السطر كبطاقات إذا كان جدولاً
-            let formattedLine = formatTableLine(l);
-            
-            if(i === targetIndex) {
-                // تظليل الكلمة داخل السطر النشط
-                let highlighted = formattedLine.replace(highlightRegex, `<span class="highlight">$1</span>`);
-                htmlParts.push(`<span id="target-line" class="active-line">${highlighted}</span>`);
-            } else {
-                htmlParts.push(`<span class="report-line">${formattedLine}</span>`);
-            }
+            let isTarget = (i === targetIndex);
+            let rendered = parseLineToHTML(l, isTarget, highlightRegex);
+            htmlParts.push(rendered);
         }
         
         body.innerHTML = htmlParts.join('');
         modal.style.display = 'flex';
         
         setTimeout(() => {
-            const target = document.getElementById('target-line');
+            const target = document.getElementById('target-line') || document.querySelector('.active-row');
             if(target) {
                 target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-        }, 150);
+        }, 200);
     }
 
     function closeModal() {
@@ -368,14 +370,8 @@ button{font:inherit;cursor:pointer}
                         let prevLine = (i > 0) ? lines[i-1].trim() : "";
                         let nextLine = (i < lines.length - 1) ? lines[i+1].trim() : "";
                         
-                        // تنسيق الأسطر كبطاقات إذا كانت جداول
-                        let formattedPrev = formatTableLine(prevLine);
-                        let formattedCurrent = formatTableLine(currentLine);
-                        let formattedNext = formatTableLine(nextLine);
-                        
-                        let block = [formattedPrev, formattedCurrent, formattedNext].filter(l => l.length > 0).join(' <br><br> ');
-                        block = block.replace(highlightRegex, `<span class="highlight">$1</span>`);
-
+                        // بناء المعاينة في الكارت بشكل منظم
+                        let previewHtml = parseLineToHTML(currentLine, true, highlightRegex);
                         let safeQuery = q.replace(/'/g, "\\'");
 
                         let cardHtml = `
@@ -385,10 +381,10 @@ button{font:inherit;cursor:pointer}
                              onmouseover="this.style.borderColor='var(--acc)'" 
                              onmouseout="this.style.borderColor='var(--line)'">
                             
-                            ${block}
+                            ${previewHtml}
                             
-                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); color: var(--acc); font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;">
-                                <i class="fa-solid fa-book-open"></i> عرض السطر داخل الملف الأصلي للتقرير
+                            <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed var(--line); color: var(--acc); font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;">
+                                <i class="fa-solid fa-book-open"></i> عرض السياق الكامل للجدول داخل الملف الأصلي
                             </div>
                         </div>`;
                         
@@ -397,7 +393,7 @@ button{font:inherit;cursor:pointer}
                 }
                 
                 if (foundBlocks.length > 0) {
-                    loadingMsg.innerHTML = `<div class="who">🔍 تم العثور على (${foundBlocks.length}) نتيجة لـ "${q}" (اضغط على أي نتيجة لفتح الملف):</div><div style="margin-top: 15px;">${foundBlocks.join('')}</div>`;
+                    loadingMsg.innerHTML = `<div class="who">🔍 تم العثور على (${foundBlocks.length}) نتيجة لـ "${q}" (اضغط على أي نتيجة لفتحها بجدول منسق):</div><div style="margin-top: 15px;">${foundBlocks.join('')}</div>`;
                 } else {
                     loadingMsg.innerHTML = `<div class="who">🔍 نتيجة البحث</div><p>لم أجد أي سطر يحتوي على "${q}" أو ما يشابهها في التقرير.</p>`;
                 }
