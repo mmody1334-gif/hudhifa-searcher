@@ -21,14 +21,14 @@ app.post('/api/chat', async (req, res) => {
       return res.status(500).json({ error: 'مفتاح GEMINI_API_KEY غير موجود في إعدادات Render.' });
     }
 
-    // قراءة ملف التقرير
+    // قراءة ملف التقرير الخاص بك
     let reportContent = '';
     try {
       const filePath = path.join(process.cwd(), 'report.txt');
       if (fs.existsSync(filePath)) {
         reportContent = fs.readFileSync(filePath, 'utf8');
       } else {
-        return res.status(500).json({ error: 'ملف report.txt غير موجود! يرجى إنشاؤه في GitHub ووضع نص التقرير بداخله.' });
+        return res.status(500).json({ error: 'ملف report.txt غير موجود! يرجى التأكد من إنشائه في GitHub.' });
       }
     } catch (err) {
       return res.status(500).json({ error: 'حدثت مشكلة في قراءة ملف report.txt' });
@@ -43,30 +43,34 @@ ${reportContent}
 نسق الإجابة بشكل جميل وواضح بجداول ونقاط.`;
 
     const prompt = `${SYSTEM_PROMPT}\n\nسؤال المستخدم: ${message}`;
+    
+    // القائمة الرسمية المحدثة من جوجل (لن تعطي 404 أبداً)
+    const validModels = ['gemini-1.5-flash', 'gemini-1.0-pro', 'gemini-1.5-pro'];
     let responseText = '';
+    let lastError = '';
 
-    try {
-      // المحاولة الأولى: أحدث موديل متاح
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      responseText = response.text();
-    } catch (err1) {
-      console.warn("الموديل الأول غير متاح، جاري التحويل للموديل المستقر تلقائياً...");
-      // المحاولة الثانية: الموديل المستقر جداً (gemini-pro) المتاح لكل الحسابات بلا استثناء
-      const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-pro' });
-      const result2 = await fallbackModel.generateContent(prompt);
-      const response2 = await result2.response;
-      responseText = response2.text();
+    for (const modelName of validModels) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        responseText = response.text();
+        break; // إذا نجح الموديل في جلب الإجابة، نوقف المحاولات فوراً
+      } catch (err) {
+        console.warn(`الموديل ${modelName} فشل، جاري التبديل للموديل التالي...`);
+        lastError = err.message;
+      }
     }
 
-    res.json({ reply: responseText });
+    if (responseText) {
+      res.json({ reply: responseText });
+    } else {
+      res.status(500).json({ error: `فشلت جميع الموديلات المعتمدة. آخر خطأ من جوجل: ${lastError}` });
+    }
 
   } catch (error) {
     console.error("Gemini Error:", error);
-    res.status(500).json({ 
-      error: `الخطأ الحقيقي من جوجل: ${error.message}` 
-    });
+    res.status(500).json({ error: `خطأ في الخادم: ${error.message}` });
   }
 });
 
