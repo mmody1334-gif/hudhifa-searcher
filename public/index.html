@@ -1,31 +1,409 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>مساعد مدرسة حذيفة بن محصن</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>باحث حذيفة بن محصن</title>
+    <!-- استدعاء خط تاجوال من جوجل -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- استدعاء أيقونات FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0f6f6f; /* اللون الأخضر الغامق */
+            --secondary-color: #f7f3e8; /* لون الخلفية البيج الفاتح */
+            --text-color: #333;
+            --white: #ffffff;
+            --blue-accent: #3b5998; /* لون شريط المدرسة الأزرق */
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* خلفية بها نقوش خفيفة جداً (اختياري) */
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><g fill="%23e8e2d2" fill-opacity="0.4" fill-rule="evenodd"><path d="M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z"/></g></svg>');
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        /* رأس الصفحة (البانر) */
+        .header-banner {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 20px 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header-banner::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 5%;
+            width: 90%;
+            height: 4px;
+            background-color: #d4af37; /* الخط الذهبي أسفل البانر */
+            border-radius: 2px;
+        }
+
+        .logo-oman {
+            width: 80px;
+            height: auto;
+        }
+
+        .logo-vision {
+            width: 80px;
+            height: auto;
+        }
+
+        .title-container {
+            flex-grow: 1;
+        }
+
+        .title-container h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+        }
+        
+        .title-container h2 {
+            color: #d4af37; /* لون ذهبي */
+            margin: 5px 0 15px 0;
+            font-size: 1.5rem;
+        }
+
+        .school-name-badge {
+            background-color: var(--blue-accent);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        /* أزرار التبديل (اسأل الباحث / بحث) */
+        .toggle-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            padding: 10px 25px;
+            border-radius: 25px;
+            border: none;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .toggle-btn.inactive {
+            background-color: var(--white);
+            color: var(--text-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        /* مربع البحث */
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 100px; /* مسافة للزر */
+            border-radius: 30px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            font-family: inherit;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 4px 20px rgba(15, 111, 111, 0.2);
+        }
+
+        .search-btn {
+            position: absolute;
+            left: 5px;
+            top: 5px;
+            bottom: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0 25px;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background-color: #0c5c5c;
+        }
+
+        /* الكلمات المفتاحية المقترحة */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .tag {
+            background-color: var(--white);
+            border: 1px solid #e0e0e0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tag:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* بطاقات الإحصائيات بالأسفل */
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            flex: 1;
+            padding: 20px 10px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        /* منطقة عرض الرد (مخفية افتراضياً) */
+        #response-container {
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: right;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: none;
+            border-right: 4px solid var(--primary-color);
+            line-height: 1.6;
+        }
+
+        #response-container h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        #loading {
+            display: none;
+            color: var(--primary-color);
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* استجابة الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .header-banner {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .stats-container {
+                flex-wrap: wrap;
+            }
+            .stat-card {
+                flex-basis: 45%;
+            }
+        }
+    </style>
 </head>
 <body>
-<header>
-  <h1>اسأل عن تقرير المدرسة</h1>
-  <p>مدرسة حذيفة بن محصن (5-12) · تقرير التقويم الذاتي</p>
-</header>
 
-<main id="chat" aria-live="polite">
-  <div class="msg bot">مرحباً، اكتب أي سؤال عن التقرير وسأجيبك من نصه مباشرة.</div>
-  <div class="chips" id="chips">
-    <button type="button">كم عدد الطلبة؟</button>
-    <button type="button">ما نسب نجاح الصف العاشر؟</button>
-    <button type="button">ما أبرز نقاط القوة؟</button>
-  </div>
-</main>
+    <div class="container">
+        <!-- الرأس (البانر) -->
+        <div class="header-banner">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Oman_Vision_2040_Logo.svg/512px-Oman_Vision_2040_Logo.svg.png" alt="رؤية عمان 2040" class="logo-vision">
+            
+            <div class="title-container">
+                <h1>باحث حذيفة بن محصن</h1>
+                <h2>محرك بحث المدرسة</h2>
+                <div class="school-name-badge">مدرسة حذيفة بن محصن للتعليم الأساسي (5-12) — تحت إشراف د. بدر بن عبد الله الكعبي</div>
+            </div>
 
-<div class="composer">
-  <input id="q" type="text" placeholder="اكتب سؤالك هنا" maxlength="1000" autocomplete="off">
-  <button id="send" type="button">إرسال</button>
-</div>
+            <!-- استبدل الرابط أدناه بشعار وزارة التربية والتعليم العمانية الحقيقي إذا توفر -->
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Coat_of_arms_of_Oman.svg/200px-Coat_of_arms_of_Oman.svg.png" alt="وزارة التربية والتعليم" class="logo-oman">
+        </div>
 
-<script src="app.js"></script>
+        <!-- أزرار التبديل -->
+        <div class="toggle-buttons">
+            <button class="toggle-btn inactive"><i class="fa-solid fa-robot"></i> اسأل الباحث</button>
+            <button class="toggle-btn active"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
+        </div>
+
+        <p class="subtitle">ابحث في تقرير التقويم الذاتي بكلمة واحدة أو أكثر — يفهم المرادفات والكلمات القريبة</p>
+
+        <!-- منطقة البحث -->
+        <div class="search-container">
+            <input type="text" id="question-input" class="search-input" placeholder="اسأل أو ابحث... مثال: مين مدرس الأحياء؟" onkeypress="handleKeyPress(event)">
+            <button class="search-btn" onclick="askQuestion()">بحث</button>
+        </div>
+
+        <div id="loading"><i class="fa-solid fa-circle-notch spinner"></i> جاري البحث والتحليل...</div>
+
+        <!-- منطقة عرض الإجابة -->
+        <div id="response-container"></div>
+
+        <!-- الكلمات المفتاحية (Tags) -->
+        <div class="tags-container">
+            <span class="tag" onclick="fillInput(this)">الإنجليزي</span>
+            <span class="tag" onclick="fillInput(this)">المعلمين</span>
+            <span class="tag" onclick="fillInput(this)">ضعف</span>
+            <span class="tag" onclick="fillInput(this)">مشاريع</span>
+            <span class="tag" onclick="fillInput(this)">طاقة شمسية</span>
+            <span class="tag" onclick="fillInput(this)">الموهوبين</span>
+            <span class="tag" onclick="fillInput(this)">مرافق</span>
+            <span class="tag" onclick="fillInput(this)">رؤية المدرسة</span>
+            <span class="tag" onclick="fillInput(this)">غياب</span>
+        </div>
+
+        <!-- الإحصائيات -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <span class="stat-number">139</span>
+                <span class="stat-label">طالباً</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">19</span>
+                <span class="stat-label">معلماً</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">12-5</span>
+                <span class="stat-label">الصفوف</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">7125</span>
+                <span class="stat-label">رمز المدرسة</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // دالة لملء مربع البحث عند الضغط على كلمة مفتاحية
+        function fillInput(element) {
+            document.getElementById('question-input').value = element.innerText;
+            askQuestion();
+        }
+
+        // دالة للتعامل مع الضغط على مفتاح Enter
+        function handleKeyPress(e) {
+            if(e.key === 'Enter'){
+                askQuestion();
+            }
+        }
+
+        // دالة إرسال السؤال للخادم
+        async function askQuestion() {
+            const inputField = document.getElementById('question-input');
+            const question = inputField.value.trim();
+            const responseContainer = document.getElementById('response-container');
+            const loading = document.getElementById('loading');
+
+            if (!question) {
+                alert('الرجاء كتابة سؤال أو كلمة للبحث');
+                return;
+            }
+
+            // إخفاء الرد القديم وإظهار التحميل
+            responseContainer.style.display = 'none';
+            loading.style.display = 'block';
+
+            try {
+                // استدعاء الـ API (تأكد أن مسار الـ API هو نفسه المستخدم في server.js)
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question })
+                });
+
+                const data = await response.json();
+                
+                loading.style.display = 'none';
+                responseContainer.style.display = 'block';
+
+                if (data.error) {
+                    responseContainer.innerHTML = `<h3 style="color:red;"><i class="fa-solid fa-circle-exclamation"></i> خطأ</h3><p>${data.error}</p>`;
+                } else {
+                    // تحويل النصوص المنسقة بـ Markdown (جداول، نجوم) إلى HTML مبسط 
+                    // (في تطبيق حقيقي يفضل استخدام مكتبة مثل marked.js)
+                    let formattedAnswer = data.answer.replace(/\n/g, '<br>');
+                    responseContainer.innerHTML = `<h3><i class="fa-solid fa-robot"></i> إجابة الباحث:</h3><div>${formattedAnswer}</div>`;
+                }
+
+            } catch (error) {
+                loading.style.display = 'none';
+                responseContainer.style.display = 'block';
+                responseContainer.innerHTML = `<h3 style="color:red;"><i class="fa-solid fa-circle-exclamation"></i> خطأ في الاتصال</h3><p>تعذر الاتصال بالخادم. تأكد من أن السيرفر يعمل.</p>`;
+            }
+        }
+    </script>
 </body>
 </html>
