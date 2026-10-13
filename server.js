@@ -45,7 +45,7 @@ app.post('/api/chat', async (req, res) => {
     }
 
     // تجربة استدعاء الموديل مع التوجيهات
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.8-flash' });
     const prompt = `${SYSTEM_PROMPT}\n\nسؤال المستخدم: ${message}`;
 
     const result = await model.generateContent(prompt);
