@@ -1,14 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // مجلد ملف الـ HTML
+app.use(express.static('public'));
 
-// مفتاح Gemini يُقرأ من متغيرات البيئة بأمان
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 const SYSTEM_PROMPT = `أنت المساعد الذكي لمدرسة حذيفة بن محصن للتعليم الأساسي (5-12) بسلطنة عُمان تحت إشراف د. بدر الكعبي.
 أجب عن استفسارات الزائرين بدقة وتفصيل معتمداً على بيانات التقرير الذاتي 2026/2027:
@@ -31,15 +30,14 @@ app.post('/api/chat', async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'الرجاء إرسال سؤال' });
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: message,
-      config: {
-        systemInstruction: SYSTEM_PROMPT,
-      }
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      systemInstruction: SYSTEM_PROMPT,
     });
 
-    res.json({ reply: response.text });
+    const result = await model.generateContent(message);
+    const response = await result.response;
+    res.json({ reply: response.text() });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'حدث خطأ في الاتصال بنموذج الذكاء الاصطناعي' });
