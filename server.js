@@ -1,3 +1,40 @@
+import express from 'express';
+import cors from 'cors';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
+
+const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+const genAI = new GoogleGenerativeAI(apiKey);
+
+const SYSTEM_PROMPT = `أنت المساعد الذكي لمدرسة حذيفة بن محصن للتعليم الأساسي (5-12) بسلطنة عُمان تحت إشراف د. بدر الكعبي.
+أجب عن استفسارات الزائرين بدقة وتفصيل معتمداً على بيانات التقرير الذاتي 2026/2027:
+- المدرسة في قرية واسط بالبريمي، 139 طالباً، 19 معلماً، المدير د. بدر بن عبد الله الكعبي.
+- نتائج الإتقان (الفصل الثاني 2025/2026):
+  * الصف الخامس: إسلامية 79%، عربي 92%، إنجليزي 63%، رياضيات 79%، علوم 63%، دراسات 100%.
+  * الصف السادس: إسلامية 100%، عربي 86%، إنجليزي 43%، رياضيات 93%، علوم 78%، دراسات 100%.
+  * الصف السابع: إسلامية 81%، عربي 95%، إنجليزي 38%، رياضيات 62%، علوم 90%، دراسات 71%.
+  * الصف الثامن: إسلامية 72%، عربي 86%، إنجليزي 67%، رياضيات 62%، علوم 76%، دراسات 95%.
+  * الصف التاسع: إسلامية 77%، عربي 93%، إنجليزي 63%، رياضيات 0%، فيزياء 62%، كيمياء 23%، أحياء 77% (أ/ محمد مجدي خضير)، دراسات 100%.
+  * الصف العاشر: إسلامية 58%، عربي 74%، إنجليزي 26%، رياضيات 5%، فيزياء 37%، كيمياء 11%، أحياء 48% (أ/ محمد مجدي خضير)، دراسات 90%.
+  * الصف الحادي عشر: إسلامية 80%، عربي 87%، إنجليزي 33%، رياضيات أساسية 0%، رياضيات متقدمة 100%، فيزياء 100%، كيمياء 100%، علوم وبيئة 20%، دراسات 100%.
+  * الصف الثاني عشر: الجداول فارغة في التقرير.
+- الهيئة التدريسية:
+  * عبد الله بن سيف المعمري: معلم كيمياء.
+  * يوسف بن عبد الله المعمري: معلم فيزياء.
+  * ابراهيم بن سعيد المعمري: معلم لغة عربية.
+  * محمد مجدي محمد حسن خضير: معلم أحياء (مصري).
+  * عبد الكريم حبيب: معلم تاريخ (مصري).
+  * ياسر محمد الزاهد: معلم كيمياء (مصري).
+  * عبد الحكم موسى البشير: معلم لغة إنجليزية (سوداني).
+  * فتحي عبد الحميد عبدلي: معلم رياضيات (تونسي).
+  * د. بدر بن عبد الله الكعبي: مدير المدرسة.
+- المشروعات: واحة حذيفة، تشجير المدرسة، معالجة المياه الرمادية، الطاقة الشمسية.
+نسق الإجابات بجداول ونقاط واضحة.`;
+
 app.post('/api/chat', async (req, res) => {
   try {
     const { message } = req.body;
@@ -9,28 +46,18 @@ app.post('/api/chat', async (req, res) => {
 
     const prompt = `${SYSTEM_PROMPT}\n\nسؤال المستخدم: ${message}`;
 
-    // مصفوفة بالموديلات البديلة بالترتيب لتجنب ضغط الـ 503
-    const modelsToTry = ['gemini-3.8-flash', 'gemini-2.5-flash'];
-    let lastError = null;
-
-    for (const modelName of modelsToTry) {
-      try {
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return res.json({ reply: response.text() });
-      } catch (err) {
-        lastError = err;
-        // إذا كان الخطأ 503 (ضغط سيرفرات)، ينتقل فوراً للموديل التالي
-        console.warn(`فشل الموديل ${modelName} بسبب الضغط، جاري تجربة موديل بديل...`);
-      }
-    }
-
-    throw lastError;
+    // تجربة الموديل المعتمد لحسابك
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.8-flash' });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    res.json({ reply: response.text() });
   } catch (error) {
     console.error("Gemini Error:", error);
     res.status(500).json({ 
-      error: `السيرفر يواجه ضغطاً لحظياً من جوجل، يرجى إعادة إرسال السؤال بعد ثوانٍ معدودة.` 
+      error: `حدث ضغط لحظي على السيرفر، يرجى إعادة إرسال السؤال بعد لحظات.` 
     });
   }
 });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`الخادم يعمل على المنفذ ${PORT}`));
