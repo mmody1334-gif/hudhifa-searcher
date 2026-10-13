@@ -301,6 +301,176 @@ button{font:inherit;cursor:pointer}
     }
 
     resetChat();
+<script>
+    const EX_ASK = ['كم عدد الطلاب الإجمالي؟', 'ما هي نسبة النجاح في الإنجليزي عاشر؟', 'ما هي مشروعات المدرسة؟'];
+    const EX_SEARCH = ['الطاقة الشمسية', 'أحمد بن راشد', 'الموهوبين', 'نواحي القصور'];
+    
+    let busy = false;
+    let currentMode = 'ask';
+    let cachedReport = "";
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.nav button').forEach(b => {
+            b.classList.toggle('on', b.dataset.m === mode);
+        });
+        
+        const input = document.getElementById('aq');
+        if (mode === 'ask') {
+            input.placeholder = "اسأل الذكاء الاصطناعي عن أي معلومة وسيحللها لك...";
+        } else {
+            input.placeholder = "ابحث بالكلمة عن أي جملة أو تفصيلة داخل ملف التقرير...";
+        }
+        resetChat();
+
+        setTimeout(() => {
+            input.focus();
+            document.getElementById('pa').scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100);
+    }
+
+    function addMsg(type, htmlContent) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'm ' + type;
+        msgDiv.innerHTML = htmlContent;
+        document.getElementById('msgs').appendChild(msgDiv);
+        msgDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return msgDiv;
+    }
+
+    function resetChat() {
+        document.getElementById('msgs').innerHTML = '';
+        document.body.classList.remove('s');
+        document.getElementById('aq').value = '';
+        
+        const suggestions = currentMode === 'ask' ? EX_ASK : EX_SEARCH;
+        const welcomeText = currentMode === 'ask' 
+            ? "أهلاً بك! أنا المساعد الذكي لمدرسة حذيفة. اسألني أي سؤال معقد وسأقرأ التقرير لأجيبك."
+            : "أهلاً بك في البحث السريع. أدخل كلمة أو اسم وسأقوم باستخراج جميع السطور التي تحتوي عليها من التقرير مباشرة.";
+            
+        addMsg('a', `<div class="who">✨ باحث حذيفة (${currentMode === 'ask' ? 'الذكاء الاصطناعي' : 'بحث سريع'})</div><p>${welcomeText}</p>
+        <div class="qs">${suggestions.map(q => `<button class="qchip" onclick="document.getElementById('aq').value='${q}';ask()">${q}</button>`).join('')}</div>`);
+    }
+
+    document.getElementById('aq').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            ask();
+        }
+    });
+
+    // توحيد الحروف للبحث
+    function normalizeArabic(text) {
+        return text.replace(/[أإآ]/g, 'ا')
+                   .replace(/ة/g, 'ه')
+                   .replace(/ى/g, 'ي')
+                   .replace(/ /g, '')
+                   .toLowerCase();
+    }
+
+    // دالة التظليل الذكية (لحل مشكلة الهمزات والتاء المربوطة)
+    function getFlexibleRegex(keyword) {
+        let escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        let flexible = escaped.replace(/[اأإآ]/g, '[اأإآ]')
+                              .replace(/[هة]/g, '[هة]')
+                              .replace(/[يى]/g, '[يى]');
+        return new RegExp(`(${flexible})`, 'gi');
+    }
+
+    async function ask() {
+        const input = document.getElementById('aq');
+        let q = input.value.trim();
+        if (!q || busy) return;
+
+        input.value = '';
+        busy = true;
+        document.getElementById('as').disabled = true;
+        document.body.classList.add('s');
+
+        addMsg('u', q);
+
+        if (currentMode === 'search') {
+            const loadingMsg = addMsg('a', '<div class="who">🔍 جاري البحث...</div><p style="color:var(--mute)"><i class="fa-solid fa-circle-notch spinner"></i> أبحث في سطور التقرير...</p>');
+            
+            try {
+                if (!cachedReport) {
+                    const res = await fetch('/api/report');
+                    if(res.ok) {
+                        cachedReport = await res.text();
+                    } else {
+                        throw new Error("لم أتمكن من قراءة التقرير");
+                    }
+                }
+                
+                const lines = cachedReport.split('\n');
+                let foundBlocks = [];
+                let normalizedQuery = normalizeArabic(q);
+                let highlightRegex = getFlexibleRegex(q);
+
+                for (let i = 0; i < lines.length; i++) {
+                    let currentLine = lines[i].trim();
+                    let normalizedLine = normalizeArabic(currentLine);
+
+                    if (currentLine.length > 3 && normalizedLine.includes(normalizedQuery)) {
+                        let prevLine = (i > 0) ? lines[i-1].trim() : "";
+                        let nextLine = (i < lines.length - 1) ? lines[i+1].trim() : "";
+                        
+                        // تجميع الأسطر وتخفيف لون الفواصل ( | ) الخاصة بالجداول لتكون أريح للعين
+                        let blockRaw = [prevLine, currentLine, nextLine].filter(l => l.length > 0).join(' <br><br> ');
+                        let block = blockRaw.replace(/\|/g, '<span style="color: var(--mute); margin: 0 4px;">|</span>');
+                        
+                        // تطبيق التظليل الذكي على الكلمة
+                        block = block.replace(highlightRegex, `<span class="highlight">$1</span>`);
+
+                        foundBlocks.push(`<div class="search-result-item" style="background: var(--soft); padding: 15px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8;">${block}</div>`);
+                    }
+                }
+                
+                foundBlocks = [...new Set(foundBlocks)];
+
+                if (foundBlocks.length > 0) {
+                    loadingMsg.innerHTML = `<div class="who">🔍 تم العثور على (${foundBlocks.length}) نتيجة لـ "${q}":</div><div style="margin-top: 15px;">${foundBlocks.join('')}</div>`;
+                } else {
+                    loadingMsg.innerHTML = `<div class="who">🔍 نتيجة البحث</div><p>لم أجد أي سطر يحتوي على "${q}" أو ما يشابهها في التقرير.</p>`;
+                }
+            } catch (error) {
+                loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ</div><p>حدثت مشكلة أثناء محاولة قراءة التقرير من الخادم.</p>`;
+            } finally {
+                busy = false;
+                document.getElementById('as').disabled = false;
+                input.focus();
+            }
+
+        } else {
+            const loadingMsg = addMsg('a', '<div class="who">✨ باحث حذيفة</div><p style="color:var(--mute)"><i class="fa-solid fa-circle-notch spinner"></i> جاري تحليل التقرير والإجابة...</p>');
+
+            try {
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: q })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ</div><p>${data.error}</p>`;
+                } else {
+                    let formattedAnswer = data.answer.replace(/\n/g, '<br>');
+                    formattedAnswer = formattedAnswer.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                    loadingMsg.innerHTML = `<div class="who">✨ الذكاء الاصطناعي</div><p>${formattedAnswer}</p>`;
+                }
+
+            } catch (error) {
+                loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ في الاتصال</div><p>تعذر الاتصال بالخادم. تأكد من أن السيرفر يعمل بشكل صحيح.</p>`;
+            } finally {
+                busy = false;
+                document.getElementById('as').disabled = false;
+                input.focus();
+            }
+        }
+    }
+
+    resetChat();
 </script>
 </body>
 </html>
