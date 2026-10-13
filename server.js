@@ -21,58 +21,64 @@ app.post('/api/chat', async (req, res) => {
       return res.status(500).json({ error: 'مفتاح GEMINI_API_KEY غير موجود في إعدادات Render.' });
     }
 
-    // قراءة ملف التقرير الخاص بك
+    // قراءة ملف التقرير من جهازك
     let reportContent = '';
-    try {
-      const filePath = path.join(process.cwd(), 'report.txt');
-      if (fs.existsSync(filePath)) {
-        reportContent = fs.readFileSync(filePath, 'utf8');
-      } else {
-        return res.status(500).json({ error: 'ملف report.txt غير موجود! يرجى التأكد من إنشائه في GitHub.' });
-      }
-    } catch (err) {
-      return res.status(500).json({ error: 'حدثت مشكلة في قراءة ملف report.txt' });
+    const filePath = path.join(process.cwd(), 'report.txt');
+    if (fs.existsSync(filePath)) {
+      reportContent = fs.readFileSync(filePath, 'utf8');
+    } else {
+      return res.status(500).json({ error: 'ملف report.txt غير موجود!' });
     }
 
     const SYSTEM_PROMPT = `أنت المساعد الذكي لمدرسة حذيفة بن محصن.
-إليك النص الكامل حرفياً لتقرير المدرسة:
+إليك النص الكامل لتقرير المدرسة:
 ----------------------
 ${reportContent}
 ----------------------
-مهمتك: اقرأ هذا التقرير جيداً، وأجب على أسئلة المستخدم بدقة متناهية بناءً على المعلومات الموجودة فيه فقط.
-نسق الإجابة بشكل جميل وواضح بجداول ونقاط.`;
+أجب على أسئلة المستخدم بدقة متناهية بناءً على التقرير فقط. ونسق الإجابة بشكل واضح.`;
 
+    // نستخدم الموديل السريع والمستقر
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `${SYSTEM_PROMPT}\n\nسؤال المستخدم: ${message}`;
     
-    // القائمة الرسمية المحدثة من جوجل (لن تعطي 404 أبداً)
-    const validModels = ['gemini-1.5-flash', 'gemini-1.0-pro', 'gemini-1.5-pro'];
-    let responseText = '';
-    let lastError = '';
-
-    for (const modelName of validModels) {
-      try {
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        responseText = response.text();
-        break; // إذا نجح الموديل في جلب الإجابة، نوقف المحاولات فوراً
-      } catch (err) {
-        console.warn(`الموديل ${modelName} فشل، جاري التبديل للموديل التالي...`);
-        lastError = err.message;
-      }
-    }
-
-    if (responseText) {
-      res.json({ reply: responseText });
-    } else {
-      res.status(500).json({ error: `فشلت جميع الموديلات المعتمدة. آخر خطأ من جوجل: ${lastError}` });
-    }
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    
+    res.json({ reply: response.text() });
 
   } catch (error) {
-    console.error("Gemini Error:", error);
-    res.status(500).json({ error: `خطأ في الخادم: ${error.message}` });
+    console.error("API Error:", error.message);
+    
+    // خطة الإنقاذ: لو سيرفر جوجل هنج، السيرفر بتاعك هيبحث في الملف ويجاوبك فوراً
+    try {
+        const filePath = path.join(process.cwd(), 'report.txt');
+        const content = fs.readFileSync(filePath, 'utf8');
+        
+        // استخراج الكلمات المهمة من سؤالك والبحث عنها في التقرير
+        const keywords = req.body.message.split(' ').filter(w => w.length > 3);
+        const lines = content.split('\n');
+        let foundLines = [];
+        
+        for (const line of lines) {
+            if (keywords.some(k => line.includes(k))) {
+                foundLines.push(line.trim());
+            }
+        }
+        
+        if (foundLines.length > 0) {
+            // تصفية السطور المكررة وعرض أهم 5 سطور
+            const uniqueLines = [...new Set(foundLines)].slice(0, 5);
+            const fallbackReply = `⚠️ **سيرفرات الذكاء الاصطناعي عليها ضغط مؤقت، لكن بحثت لك في التقرير واستخرجت التالي:**\n\n` 
+                                  + uniqueLines.map(l => `- ${l}`).join('\n\n');
+            return res.json({ reply: fallbackReply });
+        } else {
+            return res.json({ reply: `⚠️ **السيرفر مشغول حالياً ولا يوجد تطابق مباشر لكلماتك في التقرير.**\nبرجاء الانتظار 10 ثوانٍ وإعادة المحاولة.` });
+        }
+    } catch(fallbackErr) {
+        res.status(500).json({ error: `حدث خطأ غير متوقع: ${error.message}` });
+    }
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`الخادم يعمل على المنفذ ${PORT}`));
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
