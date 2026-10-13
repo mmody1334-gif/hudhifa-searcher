@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import fs from 'fs'; // مكتبة قراءة الملفات
+import fs from 'fs';
+import path from 'path';
 
 const app = express();
 app.use(cors());
@@ -17,28 +18,31 @@ app.post('/api/chat', async (req, res) => {
     if (!message) return res.status(400).json({ error: 'يرجى كتابة السؤال.' });
 
     if (!apiKey) {
-      return res.status(500).json({ error: 'لم يتم العثور على المفتاح GEMINI_API_KEY.' });
+      return res.status(500).json({ error: 'مفتاح GEMINI_API_KEY غير موجود في إعدادات Render.' });
     }
 
-    // هنا الخادم بيقرأ ملف report.txt اللي انت حاطط فيه التقرير كامل حرفياً
+    // قراءة ملف التقرير بطريقة آمنة
     let reportContent = '';
     try {
-      reportContent = fs.readFileSync('report.txt', 'utf8');
+      const filePath = path.join(process.cwd(), 'report.txt');
+      if (fs.existsSync(filePath)) {
+        reportContent = fs.readFileSync(filePath, 'utf8');
+      } else {
+        // لو نسيت تعمل الملف هيطلعلك الرسالة دي على الشاشة عشان ينبهك
+        return res.status(500).json({ error: 'ملف report.txt غير موجود! يرجى إنشاؤه في GitHub بجوار ملف server.js ووضع نص التقرير بداخله.' });
+      }
     } catch (err) {
-      console.warn("تنبيه: ملف report.txt غير موجود.");
-      reportContent = "لا يوجد تقرير مرفق.";
+      return res.status(500).json({ error: 'حدثت مشكلة في قراءة ملف report.txt' });
     }
 
-    // تلقين الذكاء الاصطناعي وقراءة الملف
     const SYSTEM_PROMPT = `أنت المساعد الذكي لمدرسة حذيفة بن محصن.
 إليك النص الكامل حرفياً لتقرير المدرسة:
 ----------------------
 ${reportContent}
 ----------------------
 مهمتك: اقرأ هذا التقرير جيداً، وأجب على أسئلة المستخدم بدقة متناهية بناءً على المعلومات الموجودة فيه فقط.
-إذا سألك عن أي تفصيلة، ابحث عنها في النص واستخرجها ونسق الإجابة بشكل جميل وواضح.`;
+إذا سألك عن أي تفصيلة، ابحث عنها في النص واستخرجها ونسق الإجابة بشكل جميل وواضح بجداول ونقاط.`;
 
-    // استخدام أحدث وأقوى نموذج مجاني مستقر
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `${SYSTEM_PROMPT}\n\nسؤال المستخدم: ${message}`;
 
@@ -48,8 +52,9 @@ ${reportContent}
 
   } catch (error) {
     console.error("Gemini Error:", error);
+    // إظهار الخطأ الحقيقي للمستخدم مباشرة عشان لو فيه ضغط أو مشكلة نعرفها
     res.status(500).json({ 
-      error: `حدث خطأ أثناء معالجة السؤال. تأكد من أن مفتاح API صحيح.` 
+      error: `الخطأ الحقيقي من جوجل: ${error.message}` 
     });
   }
 });
