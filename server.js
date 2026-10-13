@@ -31,7 +31,10 @@ function loadReport() {
     return "لا يوجد تقرير مرفق.";
   }
 }
-
+// نقطة اتصال جديدة لقراءة التقرير مجاناً بدون الذكاء الاصطناعي
+app.get("/api/report", (req, res) => {
+  res.send(loadReport());
+});
 app.post("/api/ask", async (req, res) => {
   const question = (req.body && req.body.question || "").toString().trim();
   if (!question) return res.status(400).json({ error: "اكتب سؤالك أولاً." });
