@@ -51,4 +51,523 @@ button{font:inherit;cursor:pointer}
 .qchip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 15px;border-radius:99px;font-size:.9rem;text-align:right; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
 .qchip:hover{border-color:var(--acc);background:var(--soft); color: var(--acc);}
 
-.ib{position:sticky;bottom:0;background
+.ib{position:sticky;bottom:0;background:var(--bg);padding:15px 0 10px; z-index: 10;}
+.tools{text-align:center;margin-top:10px}.tools button{border:0;background:none;color:var(--mute);font-size:.85rem; font-weight: 600;}
+.tools button:hover{color:var(--acc);}
+
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:30px}
+.facts div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 10px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.04)}
+.facts b{display:block;font-size:1.8rem;color:var(--acc);line-height:1.2; font-weight: 800;}.facts span{font-size:.9rem;color:var(--mute); font-weight: 600;}
+
+@media(max-width:520px){.facts{grid-template-columns:repeat(2,1fr)}}
+.spinner { animation: spin 1s linear infinite; display: inline-block;}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.highlight { background-color: var(--mk); color: #000; border-radius: 4px; padding: 1px 5px; font-weight: 800; }
+
+/* تنسيقات النافذة المنبثقة (Modal) لملف التقرير */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 12px; backdrop-filter: blur(4px); }
+.modal-content { background: var(--bg); width: 100%; max-width: 920px; height: 88vh; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: 1px solid var(--line); }
+.modal-header { padding: 14px 18px; background: var(--card); border-bottom: 2px solid var(--acc); display: flex; justify-content: space-between; align-items: center; }
+.modal-title { font-weight: 800; color: var(--acc); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+.modal-close { background: var(--soft); border: none; color: var(--acc); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.modal-close:hover { background: var(--acc); color: #fff; }
+.modal-body { padding: 16px; overflow-y: auto; flex: 1; line-height: 1.8; font-size: 0.95rem; color: var(--ink); background: var(--card); }
+
+/* حاوية التمرير الأفقي للجداول لمنع تكسير الحروف عمودياً */
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 10px 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+}
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    min-width: max-content;
+}
+.report-table th, .report-table td {
+    border: 1px solid var(--line);
+    padding: 8px 12px;
+    text-align: center;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+.report-table th {
+    background: var(--acc);
+    color: #fff;
+    font-weight: 700;
+}
+.report-table tr:nth-child(even) {
+    background: #faf9f5;
+}
+.report-table tr.active-row {
+    background-color: var(--soft) !important;
+    font-weight: 700;
+}
+.report-table tr.active-row td {
+    border-top: 2px solid var(--acc);
+    border-bottom: 2px solid var(--acc);
+}
+
+.active-line { background-color: var(--soft); padding: 12px 15px; border-radius: 10px; border-right: 4px solid var(--acc); display: block; margin: 12px 0; font-weight: 600; }
+.report-line { display: block; margin-bottom: 6px; color: #444; padding: 4px 8px; }
+.scroll-hint { font-size: 0.78rem; color: var(--mute); margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+</style>
+</head>
+<body>
+
+<div id="bg-doodles">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="d-pencil" viewBox="0 0 48 48"><path d="M8 40l2-8L32 10l6 6L16 38z M28 14l6 6 M8 40l8-2"/></symbol>
+    <symbol id="d-book" viewBox="0 0 48 48"><path d="M6 10h14a4 4 0 014 4v24a3 3 0 00-3-3H6z M42 10H28a4 4 0 00-4 4v24a3 3 0 013-3h15z"/></symbol>
+    <symbol id="d-cap" viewBox="0 0 48 48"><path d="M2 18L24 8l22 10-22 10z M12 23v10c0 3 6 6 12 6s12-3 12-6V23 M46 18v12"/></symbol>
+    <symbol id="d-bulb" viewBox="0 0 48 48"><path d="M24 6a12 12 0 00-6 22v5h12v-5a12 12 0 00-6-22z M19 38h10 M20 43h8"/></symbol>
+    <symbol id="d-atom" viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="20" ry="8"/><ellipse cx="24" cy="24" rx="20" ry="8" transform="rotate(60 24 24)"/><ellipse cx="24" cy="24" rx="20" ry="8" transform="rotate(120 24 24)"/><circle cx="24" cy="24" r="2.5"/></symbol>
+    <symbol id="d-ruler" viewBox="0 0 48 48"><path d="M4 30L30 4l14 14L18 44z M14 26l4 4 M20 20l4 4 M26 14l4 4"/></symbol>
+    <symbol id="d-star" viewBox="0 0 48 48"><path d="M24 5l5.5 12 13 1.5-9.7 8.8 2.7 12.9L24 33l-11.5 7.2 2.7-12.9-9.7-8.8 13-1.5z"/></symbol>
+    <symbol id="d-globe" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><path d="M6 24h36 M24 6c-8 9-8 27 0 36 M24 6c8 9 8 27 0 36"/></symbol>
+    <symbol id="d-school" viewBox="0 0 48 48"><path d="M4 42h40 M8 42V20l16-10 16 10v22 M20 42V30h8v12 M24 10V4h6"/></symbol>
+    <symbol id="d-calc" viewBox="0 0 48 48"><rect x="10" y="4" width="28" height="40" rx="3"/><rect x="15" y="9" width="18" height="8"/><path d="M16 24h2M23 24h2M30 24h2M16 31h2M23 31h2M30 31h2M16 38h2M23 38h2M30 38h2"/></symbol>
+    <symbol id="d-palm" viewBox="0 0 48 48"><path d="M24 44V22 M24 22c-4-8-12-8-16-6 M24 22c4-8 12-8 16-6 M24 22c-2-9-8-13-14-12 M24 22c2-9 8-13 14-12 M24 22V8"/></symbol>
+    <symbol id="d-flask" viewBox="0 0 48 48"><path d="M18 4h12 M20 4v14L8 40a3 3 0 003 4h26a3 3 0 003-4L28 18V4 M14 32h20"/></symbol>
+  </defs></svg>
+  <svg class="dd" style="--x:8%;--y:12%;--s:28px;--r:-15deg;--c:var(--acc);--d:0s"><use href="#d-pencil"/></svg>
+  <svg class="dd" style="--x:85%;--y:18%;--s:30px;--r:10deg;--c:var(--gold);--d:-1s"><use href="#d-book"/></svg>
+  <svg class="dd" style="--x:15%;--y:45%;--s:32px;--r:8deg;--c:var(--acc);--d:-2s"><use href="#d-cap"/></svg>
+  <svg class="dd" style="--x:88%;--y:55%;--s:25px;--r:12deg;--c:var(--gold);--d:-0.5s"><use href="#d-bulb"/></svg>
+  <svg class="dd" style="--x:10%;--y:80%;--s:28px;--r:-10deg;--c:var(--gold);--d:-3s"><use href="#d-atom"/></svg>
+  <svg class="dd" style="--x:75%;--y:85%;--s:26px;--r:24deg;--c:var(--acc);--d:-1.5s"><use href="#d-ruler"/></svg>
+  <svg class="dd" style="--x:45%;--y:20%;--s:22px;--r:15deg;--c:var(--gold);--d:-2.5s"><use href="#d-star"/></svg>
+  <svg class="dd" style="--x:55%;--y:75%;--s:30px;--r:0deg;--c:var(--acc);--d:-0.8s"><use href="#d-globe"/></svg>
+  <svg class="dd" style="--x:35%;--y:88%;--s:28px;--r:0deg;--c:var(--gold);--d:-2s"><use href="#d-school"/></svg>
+  <svg class="dd" style="--x:25%;--y:25%;--s:24px;--r:-14deg;--c:var(--acc);--d:-3.2s"><use href="#d-calc"/></svg>
+  <svg class="dd" style="--x:70%;--y:35%;--s:30px;--r:6deg;--c:var(--acc);--d:-1.2s"><use href="#d-palm"/></svg>
+  <svg class="dd" style="--x:60%;--y:10%;--s:25px;--r:16deg;--c:var(--gold);--d:-2.2s"><use href="#d-flask"/></svg>
+</div>
+
+<div class="wrap" id="app">
+  <header class="hero">
+    <img class="lg" src="image_f93b2f.png" onerror="this.onerror=null;this.src='image_f93b2f.png.png';" alt="وزارة التعليم">
+    
+    <div class="mid">
+      <div class="t1">باحث حذيفة بن محصن</div>
+      <div class="t2">محرك بحث المدرسة</div>
+      <div class="sup">
+        <div>مدرسة حذيفة بن محصن للتعليم الأساسي (5-12)</div>
+        <div>تحت إشراف د. بدر بن عبد الله الكعبي</div>
+      </div>
+    </div>
+
+    <img class="lg" src="image_f93b4d.png" onerror="this.onerror=null;this.src='image_f93b4d.png.png';" alt="رؤية عُمان 2040">
+  </header>
+
+  <nav class="nav" id="nav">
+      <button class="on" data-m="ask" onclick="setMode('ask')"><i class="fa-solid fa-robot"></i> اسأل باحث حذيفة</button>
+      <button data-m="search" onclick="setMode('search')"><i class="fa-solid fa-magnifying-glass"></i> بحث في التقرير (مجاني)</button>
+  </nav>
+
+  <section class="home">
+    <div class="facts">
+      <div><b>139</b><span>طالباً</span></div>
+      <div><b>19</b><span>معلماً</span></div>
+      <div><b>5–12</b><span>الصفوف</span></div>
+      <div><b>7125</b><span>رمز المدرسة</span></div>
+    </div>
+  </section>
+
+  <section id="pa">
+    <div class="msgs" id="msgs"></div>
+    <div class="ib">
+      <div class="bar">
+        <input id="aq" placeholder="اسأل الذكاء الاصطناعي عن أي معلومة في التقرير وسيقوم بتحليلها..." autocomplete="off" enterkeyhint="send">
+        <button id="as" onclick="ask()">إرسال</button>
+      </div>
+      <div class="tools">
+        <button id="ar" onclick="initPage()">محادثة جديدة ↺</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- نافذة عرض ملف التقرير الأصلي -->
+<div class="modal-overlay" id="fileModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-solid fa-file-lines"></i> عرض الجدول والنص من التقرير الأصلي</div>
+      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+    const EX_ASK = ['كم عدد الطلاب الإجمالي؟', 'ما هي نسبة النجاح في الإنجليزي عاشر؟', 'ما هي مشروعات المدرسة؟'];
+    const EX_SEARCH = ['الطاقة الشمسية', 'أحمد بن راشد', 'الموهوبين', 'الأحياء'];
+    
+    let busy = false;
+    let currentMode = 'ask';
+    let cachedReport = "";
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.nav button').forEach(b => {
+            b.classList.toggle('on', b.dataset.m === mode);
+        });
+        
+        const input = document.getElementById('aq');
+        if (mode === 'ask') {
+            input.placeholder = "اسأل الذكاء الاصطناعي عن أي معلومة وسيحللها لك...";
+        } else {
+            input.placeholder = "ابحث بالكلمة عن أي جملة أو تفصيلة داخل ملف التقرير...";
+        }
+        
+        document.getElementById('msgs').innerHTML = '';
+        const suggestions = currentMode === 'ask' ? EX_ASK : EX_SEARCH;
+        const welcomeText = currentMode === 'ask' 
+            ? "أهلاً بك! أنا المساعد الذكي لمدرسة حذيفة. اسألني أي سؤال معقد وسأقرأ التقرير لأجيبك."
+            : "أهلاً بك في البحث السريع. أدخل كلمة أو اسم وسأقوم باستخراج الجداول والسطور التي تحتوي عليها مباشرة.";
+            
+        addMsg('a', `<div class="who">✨ باحث حذيفة (${currentMode === 'ask' ? 'الذكاء الاصطناعي' : 'بحث سريع'})</div><p>${welcomeText}</p>
+        <div class="qs">${suggestions.map(q => `<button class="qchip" onclick="document.getElementById('aq').value='${q}';ask()">${q}</button>`).join('')}</div>`);
+
+        setTimeout(() => {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            input.focus();
+        }, 150);
+    }
+
+    function addMsg(type, htmlContent) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'm ' + type;
+        msgDiv.innerHTML = htmlContent;
+        document.getElementById('msgs').appendChild(msgDiv);
+        
+        setTimeout(() => {
+            msgDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 50);
+        
+        return msgDiv;
+    }
+
+    function initPage() {
+        document.getElementById('msgs').innerHTML = '';
+        document.body.classList.remove('s'); 
+        document.getElementById('aq').value = '';
+        
+        const suggestions = currentMode === 'ask' ? EX_ASK : EX_SEARCH;
+        const welcomeText = currentMode === 'ask' 
+            ? "أهلاً بك! أنا المساعد الذكي لمدرسة حذيفة. اسألني أي سؤال معقد وسأقرأ التقرير لأجيبك."
+            : "أهلاً بك في البحث السريع. أدخل كلمة أو اسم وسأقوم باستخراج الجداول والسطور التي تحتوي عليها مباشرة.";
+            
+        addMsg('a', `<div class="who">✨ باحث حذيفة (${currentMode === 'ask' ? 'الذكاء الاصطناعي' : 'بحث سريع'})</div><p>${welcomeText}</p>
+        <div class="qs">${suggestions.map(q => `<button class="qchip" onclick="document.getElementById('aq').value='${q}';ask()">${q}</button>`).join('')}</div>`);
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.getElementById('aq').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            ask();
+        }
+    });
+
+    function normalizeArabic(text) {
+        return text.replace(/[أإآ]/g, 'ا')
+                   .replace(/ة/g, 'ه')
+                   .replace(/ى/g, 'ي')
+                   .replace(/ /g, '')
+                   .toLowerCase();
+    }
+
+    function getFlexibleRegex(keyword) {
+        let escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        let flexible = escaped.replace(/[اأإآ]/g, '[اأإآ]')
+                              .replace(/[هة]/g, '[هة]')
+                              .replace(/[يى]/g, '[يى]');
+        return new RegExp(`(${flexible})`, 'gi');
+    }
+
+    // استخراج خلايا السطر مع الحفاظ على الأعمدة الفارغة في مكانها الصحيح
+    function splitTableCells(lineText) {
+        let raw = lineText.trim().split('|');
+        if (raw.length > 0 && raw[0].trim() === '') raw.shift();
+        if (raw.length > 0 && raw[raw.length - 1].trim() === '') raw.pop();
+        return raw.map(c => c.trim());
+    }
+
+    // التحقق مما إذا كان السطر صفاً فارغاً مثل | 30 | | | |
+    function isEmptyTableRow(cells) {
+        if (cells.length === 0) return true;
+        let nonEmpty = cells.filter(c => c !== '' && c !== '-');
+        if (nonEmpty.length === 0) return true;
+        if (nonEmpty.length === 1 && /^\d+$/.test(nonEmpty[0]) && cells.length > 3) return true;
+        return false;
+    }
+
+    // بناء جدول مصغر ومنسق داخل كارت البحث يشمل عنوان الجدول ورأس الأعمدة
+    function buildTablePreview(lines, targetIdx, highlightRegex) {
+        let start = targetIdx;
+        while (start > 0 && lines[start - 1].trim().includes('|')) {
+            start--;
+        }
+        
+        let previewIndices = [];
+        // جلب أول سطرين أو ثلاثة من بداية الجدول (العنوان + رؤوس الأعمدة)
+        for (let k = start; k < Math.min(start + 3, targetIdx); k++) {
+            let cells = splitTableCells(lines[k]);
+            if (!isEmptyTableRow(cells)) {
+                previewIndices.push({ idx: k, isHeader: true });
+            }
+        }
+        
+        // إذا كان السطر المبحوث عنه هو نفسه رأس الجدول، نعرض معه 3 صفوف بيانات تالية
+        previewIndices.push({ idx: targetIdx, isHeader: (targetIdx === start) });
+        if (targetIdx <= start + 2) {
+            let added = 0;
+            for (let k = targetIdx + 1; k < lines.length && added < 3; k++) {
+                if (!lines[k].trim().includes('|')) break;
+                let cells = splitTableCells(lines[k]);
+                if (!isEmptyTableRow(cells)) {
+                    previewIndices.push({ idx: k, isHeader: false });
+                    added++;
+                }
+            }
+        }
+
+        let rowsHtml = previewIndices.map(item => {
+            let cells = splitTableCells(lines[item.idx]);
+            let isTarget = (item.idx === targetIdx);
+            if (cells.length === 1) {
+                let txt = cells[0].replace(highlightRegex, `<span class="highlight">$1</span>`);
+                return `<tr><th colspan="25" style="background:var(--gold);color:#fff;text-align:right;">${txt}</th></tr>`;
+            }
+            let tag = item.isHeader ? 'th' : 'td';
+            let rowClass = isTarget ? 'class="active-row"' : '';
+            let cellsHtml = cells.map(c => {
+                let val = c || '-';
+                val = val.replace(highlightRegex, `<span class="highlight">$1</span>`);
+                return `<${tag}>${val}</${tag}>`;
+            }).join('');
+            return `<tr ${rowClass}>${cellsHtml}</tr>`;
+        }).join('');
+
+        return `<div class="scroll-hint"><i class="fa-solid fa-arrows-left-right"></i> اسحب الجدول يميناً ويساراً لرؤية باقي الأعمدة</div>
+                <div class="table-scroll"><table class="report-table"><tbody>${rowsHtml}</tbody></table></div>`;
+    }
+
+    // عرض الملف بالكامل في النافذة المنبثقة مع دمج كل جدول في جدول HTML واحد متناسق
+    function openFileContext(targetIndex, queryText) {
+        const modal = document.getElementById('fileModal');
+        const body = document.getElementById('modalBody');
+        const lines = cachedReport.split('\n');
+        
+        let highlightRegex = getFlexibleRegex(queryText);
+        let htmlParts = [];
+        let inTable = false;
+        let tableRowCount = 0;
+
+        for (let i = 0; i < lines.length; i++) {
+            let cleanLine = lines[i].trim();
+
+            if (cleanLine.includes('|')) {
+                let cells = splitTableCells(cleanLine);
+                if (isEmptyTableRow(cells)) continue;
+
+                if (!inTable) {
+                    htmlParts.push('<div class="scroll-hint"><i class="fa-solid fa-arrows-left-right"></i> اسحب الجدول أفقياً لاستعراض كافة الأعمدة</div><div class="table-scroll"><table class="report-table"><tbody>');
+                    inTable = true;
+                    tableRowCount = 0;
+                }
+
+                let isTarget = (i === targetIndex);
+                let rowId = isTarget ? 'id="target-line"' : '';
+                let rowClass = isTarget ? 'class="active-row"' : '';
+
+                if (cells.length === 1) {
+                    let txt = cells[0];
+                    if (isTarget) txt = txt.replace(highlightRegex, `<span class="highlight">$1</span>`);
+                    htmlParts.push(`<tr ${rowId} ${rowClass}><th colspan="25" style="background:var(--gold);color:#fff;text-align:right;font-size:0.95rem;">${txt}</th></tr>`);
+                } else {
+                    let tag = (tableRowCount <= 1) ? 'th' : 'td';
+                    let cellsHtml = cells.map(c => {
+                        let val = c || '-';
+                        if (isTarget) val = val.replace(highlightRegex, `<span class="highlight">$1</span>`);
+                        return `<${tag}>${val}</${tag}>`;
+                    }).join('');
+                    htmlParts.push(`<tr ${rowId} ${rowClass}>${cellsHtml}</tr>`);
+                    tableRowCount++;
+                }
+                continue;
+            }
+
+            if (inTable) {
+                htmlParts.push('</tbody></table></div>');
+                inTable = false;
+            }
+
+            if (cleanLine.length === 0) {
+                htmlParts.push('<div style="height:8px;"></div>');
+                continue;
+            }
+
+            let isTarget = (i === targetIndex);
+            let txt = cleanLine;
+            if (isTarget) txt = txt.replace(highlightRegex, `<span class="highlight">$1</span>`);
+
+            if (isTarget) {
+                htmlParts.push(`<div id="target-line" class="active-line">${txt}</div>`);
+            } else if (/^\[جدول \d+\]$/.test(cleanLine) || /^أولاً|^ثانيا|^المجال/.test(cleanLine)) {
+                htmlParts.push(`<h4 style="color:var(--acc);margin:18px 0 6px;border-right:4px solid var(--gold);padding-right:8px;">${txt}</h4>`);
+            } else {
+                htmlParts.push(`<div class="report-line">${txt}</div>`);
+            }
+        }
+
+        if (inTable) {
+            htmlParts.push('</tbody></table></div>');
+        }
+        
+        body.innerHTML = htmlParts.join('');
+        modal.style.display = 'flex';
+        
+        setTimeout(() => {
+            const target = document.getElementById('target-line');
+            if(target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 200);
+    }
+
+    function closeModal() {
+        document.getElementById('fileModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('fileModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    async function ask() {
+        const input = document.getElementById('aq');
+        let q = input.value.trim();
+        if (!q || busy) return;
+
+        input.value = '';
+        busy = true;
+        document.getElementById('as').disabled = true;
+        document.body.classList.add('s');
+
+        addMsg('u', q);
+
+        if (currentMode === 'search') {
+            const loadingMsg = addMsg('a', '<div class="who">🔍 جاري البحث...</div><p style="color:var(--mute)"><i class="fa-solid fa-circle-notch spinner"></i> أبحث في سطور وجداول التقرير...</p>');
+            
+            try {
+                if (!cachedReport) {
+                    const res = await fetch('/api/report');
+                    if(res.ok) {
+                        cachedReport = await res.text();
+                    } else {
+                        throw new Error("لم أتمكن من قراءة التقرير");
+                    }
+                }
+                
+                const lines = cachedReport.split('\n');
+                let foundBlocks = [];
+                let normalizedQuery = normalizeArabic(q);
+                let highlightRegex = getFlexibleRegex(q);
+                let addedIndices = new Set();
+
+                for (let i = 0; i < lines.length; i++) {
+                    let currentLine = lines[i].trim();
+                    let normalizedLine = normalizeArabic(currentLine);
+
+                    if (currentLine.length > 3 && normalizedLine.includes(normalizedQuery)) {
+                        if(addedIndices.has(i)) continue;
+                        addedIndices.add(i);
+
+                        let previewHtml = '';
+                        if (currentLine.includes('|')) {
+                            previewHtml = buildTablePreview(lines, i, highlightRegex);
+                        } else {
+                            let prevLine = (i > 0 && !lines[i-1].includes('|')) ? lines[i-1].trim() : "";
+                            let nextLine = (i < lines.length - 1 && !lines[i+1].includes('|')) ? lines[i+1].trim() : "";
+                            let block = [prevLine, currentLine, nextLine].filter(l => l.length > 0).join(' <br> ');
+                            block = block.replace(highlightRegex, `<span class="highlight">$1</span>`);
+                            previewHtml = `<div class="active-line" style="margin:0;">${block}</div>`;
+                        }
+
+                        let safeQuery = q.replace(/'/g, "\\'");
+
+                        let cardHtml = `
+                        <div class="search-result-item" 
+                             style="background: var(--card); border: 1px solid var(--line); padding: 14px; border-radius: 14px; margin-bottom: 15px; line-height: 1.8; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.03);" 
+                             onclick="openFileContext(${i}, '${safeQuery}')" 
+                             onmouseover="this.style.borderColor='var(--acc)'" 
+                             onmouseout="this.style.borderColor='var(--line)'">
+                            
+                            ${previewHtml}
+                            
+                            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--line); color: var(--acc); font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-table"></i> اضغط هنا لعرض الجدول كاملاً داخل التقرير الأصلي
+                            </div>
+                        </div>`;
+                        
+                        foundBlocks.push(cardHtml);
+                    }
+                }
+                
+                if (foundBlocks.length > 0) {
+                    loadingMsg.innerHTML = `<div class="who">🔍 تم العثور على (${foundBlocks.length}) نتيجة لـ "${q}":</div><div style="margin-top: 12px;">${foundBlocks.join('')}</div>`;
+                } else {
+                    loadingMsg.innerHTML = `<div class="who">🔍 نتيجة البحث</div><p>لم أجد أي سطر يحتوي على "${q}" أو ما يشابهها في التقرير.</p>`;
+                }
+            } catch (error) {
+                loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ</div><p>حدثت مشكلة أثناء محاولة قراءة التقرير من الخادم.</p>`;
+            } finally {
+                busy = false;
+                document.getElementById('as').disabled = false;
+                input.focus();
+            }
+
+        } else {
+            const loadingMsg = addMsg('a', '<div class="who">✨ باحث حذيفة</div><p style="color:var(--mute)"><i class="fa-solid fa-circle-notch spinner"></i> جاري تحليل التقرير والإجابة...</p>');
+
+            try {
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: q })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ</div><p>${data.error}</p>`;
+                } else {
+                    let formattedAnswer = data.answer.replace(/\n/g, '<br>');
+                    formattedAnswer = formattedAnswer.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                    loadingMsg.innerHTML = `<div class="who">✨ الذكاء الاصطناعي</div><p>${formattedAnswer}</p>`;
+                }
+
+            } catch (error) {
+                loadingMsg.innerHTML = `<div class="who" style="color:red;">⚠ خطأ في الاتصال</div><p>تعذر الاتصال بالخادم. تأكد من أن السيرفر يعمل بشكل صحيح.</p>`;
+            } finally {
+                busy = false;
+                document.getElementById('as').disabled = false;
+                input.focus();
+            }
+        }
+    }
+
+    initPage();
+</script>
+</body>
+</html>
