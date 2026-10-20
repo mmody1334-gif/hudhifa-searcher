@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>استطلاع رأي أولياء الأمور | مدرسة حذيفة بن محصن</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f2ea;--card:#fff;--ink:#1c2826;--mute:#667370;--acc:#0e6b6b;--acc2:#0a4d4d;--gold:#b8860b;--soft:#e4f1ef;--line:#e3e0d3;--bad:#b42318}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,"Segoe UI",Tahoma,sans-serif;line-height:1.8;min-height:100vh;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:680px;margin:0 auto;padding:14px 16px 50px}
+
+.hero{background:#fff;border-radius:20px;box-shadow:0 6px 28px rgba(14,107,107,.12);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:4px solid var(--gold)}
+.lg{height:clamp(46px,12vw,74px);width:auto;flex:none;object-fit:contain}
+.mid{text-align:center;flex:1;min-width:0}
+.mark{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.mark svg{width:clamp(26px,6vw,36px);height:clamp(26px,6vw,36px);flex:none}
+.t1{font-weight:800;font-size:clamp(1.15rem,5vw,2rem);color:var(--acc);line-height:1.2}
+.t2{font-weight:800;font-size:clamp(.82rem,3.4vw,1.1rem);line-height:1.4;background:linear-gradient(180deg,#d4a017,#9a6a06);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:2px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 4px 18px rgba(0,0,0,.05);padding:22px 20px;margin-top:18px}
+.welcome h1{margin:0 0 6px;font-size:clamp(1.3rem,5vw,1.7rem);color:var(--acc);font-weight:800}
+.welcome p{margin:.35em 0;color:var(--ink)}
+.welcome .note{color:var(--mute);font-size:.92rem}
+
+label{display:block;font-weight:700;margin:4px 0 6px}
+label small{font-weight:600;color:var(--mute)}
+input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:#fbfaf6;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;outline:none;transition:.2s}
+input[type=text]:focus,textarea:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 4px rgba(14,107,107,.1)}
+textarea{min-height:170px;resize:vertical;line-height:1.8}
+.field{margin-bottom:14px}
+.count{text-align:left;font-size:.8rem;color:var(--mute);margin-top:2px}
+.hp{position:absolute;right:0;width:1px!important;height:1px;padding:0!important;border:0!important;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);opacity:0}
+html,body{overflow-x:hidden}
+
+button{font:inherit;cursor:pointer}
+.send{width:100%;border:0;border-radius:99px;background:var(--acc);color:#fff;font-weight:800;font-size:1.05rem;padding:12px 20px;box-shadow:0 4px 12px rgba(14,107,107,.22);transition:.2s}
+.send:hover{background:var(--acc2)}
+.send:disabled{opacity:.55;cursor:default}
+.err{color:var(--bad);font-weight:600;font-size:.92rem;min-height:1.4em;margin:8px 0 0;text-align:center}
+
+.done{text-align:center;padding:30px 20px}
+.done .ok{width:70px;height:70px;border-radius:50%;background:var(--soft);display:grid;place-items:center;margin:0 auto 12px}
+.done h2{margin:0 0 6px;color:var(--acc);font-weight:800}
+.done p{margin:.3em 0;color:var(--mute)}
+.again{margin-top:14px;border:1px solid var(--line);background:#fff;color:var(--acc);font-weight:700;border-radius:99px;padding:8px 22px}
+.again:hover{background:var(--soft)}
+
+footer{text-align:center;color:var(--mute);font-size:.82rem;margin-top:22px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <img class="lg" src="/image_f93b2f.png" alt="وزارة التعليم">
+    <div class="mid">
+      <div class="mark">
+        <svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="20" cy="20" r="13" stroke="#0e6b6b" stroke-width="4"/>
+          <path d="M30 30l11 11" stroke="#b8860b" stroke-width="5"/>
+          <path d="M14 20h12M20 14v12" stroke="#b8860b" stroke-width="3"/>
+        </svg>
+        <span class="t1">باحث حذيفة بن محصن</span>
+      </div>
+      <div class="t2">مدرسة حذيفة بن محصن للتعليم الأساسي (5-12)</div>
+    </div>
+    <img class="lg" src="/image_f93b4d.png" alt="رؤية عُمان 2040">
+  </header>
+
+  <section class="card welcome" id="formCard">
+    <h1>أهلاً بك ولي الأمر الكريم</h1>
+    <p>يسعدنا تواصلك معنا، ويهمّنا أن نسمع رأيك ومقترحاتك؛ فأنتم شركاؤنا في تعليم أبنائنا وتطوير مدرستنا.</p>
+    <p class="note">شاركنا ملاحظاتك عن المدرسة أو عن تجربة ابنك بكل حرية، وسيصل رأيك مباشرة إلى إدارة المدرسة.</p>
+
+    <form id="f" novalidate style="margin-top:16px">
+      <div class="field">
+        <label for="name">الاسم <small>(اختياري)</small></label>
+        <input type="text" id="name" maxlength="80" autocomplete="name" placeholder="يمكنك ترك هذا الحقل فارغاً">
+      </div>
+      <div class="field">
+        <label for="comment">رأيك ومقترحاتك</label>
+        <textarea id="comment" maxlength="2000" placeholder="اكتب رأيك هنا..." required></textarea>
+        <div class="count"><span id="cnt">0</span> / 2000</div>
+      </div>
+      <input type="text" class="hp" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="send" id="send" type="submit">إرسال الرأي</button>
+      <p class="err" id="err" role="alert"></p>
+    </form>
+  </section>
+
+  <section class="card done" id="doneCard" hidden>
+    <div class="ok">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0e6b6b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </div>
+    <h2>شكراً لك، وصل رأيك</h2>
+    <p>نقدّر وقتك واهتمامك، وسنأخذ ملاحظاتك بعين الاعتبار.</p>
+    <button class="again" id="again" type="button">إرسال رأي آخر</button>
+  </section>
+
+  <footer>مدرسة حذيفة بن محصن — بإشراف د. بدر بن عبد الله الكعبي</footer>
+</div>
+
+<script>
+const f = document.getElementById("f"), c = document.getElementById("comment"),
+      send = document.getElementById("send"), err = document.getElementById("err");
+c.addEventListener("input", () => { document.getElementById("cnt").textContent = c.value.length; err.textContent = ""; });
+
+f.addEventListener("submit", async e => {
+  e.preventDefault();
+  const comment = c.value.trim();
+  if (comment.length < 3) { err.textContent = "فضلاً اكتب رأيك أولاً."; c.focus(); return; }
+  send.disabled = true; send.textContent = "جارٍ الإرسال..."; err.textContent = "";
+  try {
+    const r = await fetch("/api/survey", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ comment, name: document.getElementById("name").value.trim(),
+                             website: document.getElementById("website").value })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok || !data.ok) throw new Error(data.error || "تعذّر الإرسال، حاول مرة أخرى.");
+    f.reset(); document.getElementById("cnt").textContent = "0";
+    document.getElementById("formCard").hidden = true;
+    document.getElementById("doneCard").hidden = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (ex) {
+    err.textContent = ex.message || "تعذّر الإرسال، تحقق من الاتصال وحاول مرة أخرى.";
+  } finally {
+    send.disabled = false; send.textContent = "إرسال الرأي";
+  }
+});
+
+document.getElementById("again").onclick = () => {
+  document.getElementById("doneCard").hidden = true;
+  document.getElementById("formCard").hidden = false;
+  c.focus();
+};
+</script>
+</body>
+</html>
