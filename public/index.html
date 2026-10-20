@@ -39,6 +39,7 @@ button{font:inherit;cursor:pointer}
 .nav{display:flex;gap:6px;justify-content:center;margin:16px 0 2px}
 .nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 24px;border-radius:99px;font-weight:600; transition: 0.2s;}
 .nav button.on{background:var(--acc);color:#fff;border-color:var(--acc); box-shadow:0 4px 10px rgba(14,107,107,.2);}
+.nav{flex-wrap:wrap}.navlink{border:1px solid var(--line);background:var(--card);color:var(--gold);padding:8px 24px;border-radius:99px;font-weight:600;text-decoration:none;transition:.2s;display:inline-flex;align-items:center;gap:6px}.navlink:hover{border-color:var(--gold);background:#fff8e6}
 
 .msgs{display:flex;flex-direction:column;gap:12px;margin-top:14px;padding-bottom:10px}
 .m{border-radius:18px;padding:15px 20px;overflow-wrap:break-word; line-height: 1.7; max-width: 100%; overflow: hidden;}
@@ -169,6 +170,7 @@ button{font:inherit;cursor:pointer}
   <nav class="nav" id="nav">
       <button class="on" data-m="ask" onclick="setMode('ask')"><i class="fa-solid fa-robot"></i> اسأل باحث حذيفة</button>
       <button data-m="search" onclick="setMode('search')"><i class="fa-solid fa-magnifying-glass"></i> بحث في التقرير (مجاني)</button>
+      <a class="navlink" href="/survey/admin" target="_blank" rel="noopener"><i class="fa-solid fa-comments"></i> آراء أولياء الأمور</a>
   </nav>
 
   <section class="home">
