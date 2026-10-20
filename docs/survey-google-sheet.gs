@@ -18,9 +18,11 @@ function secretOk_(given) {
   return !!s && given === s;
 }
 const SHEET_NAME = "الآراء";
+// اتركه فارغاً إذا فتحت Apps Script من داخل الشيت، أو ضع رقم الشيت (من رابطه) لسكريبت مستقل
+const SHEET_ID = "";
 
 function sheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);
