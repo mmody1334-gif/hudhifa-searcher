@@ -3,15 +3,20 @@
  *
  * الخطوات:
  * 1) أنشئ Google Sheet جديد ← Extensions (الإضافات) ← Apps Script
- * 2) امسح الكود الموجود والصق هذا الملف كاملاً، وغيّر قيمة SECRET بكلمة سرية من اختيارك
+ * 2) امسح الكود الموجود والصق هذا الملف كاملاً
+ *    ثم Project Settings (⚙️) ← Script Properties ← Add script property
+ *      Property: SECRET   |   Value: كلمة سرية من اختيارك
  * 3) Deploy ← New deployment ← النوع: Web app
  *      Execute as: Me   |   Who has access: Anyone
  * 4) انسخ رابط الـ Web app (ينتهي بـ /exec)
  * 5) في Render ← Environment أضف:
  *      SURVEY_SHEET_URL    = رابط الـ Web app
- *      SURVEY_SHEET_SECRET = نفس كلمة SECRET
+ *      SURVEY_SHEET_SECRET = نفس قيمة SECRET
  */
-const SECRET = "غيّر-هذه-الكلمة";
+function secretOk_(given) {
+  const s = PropertiesService.getScriptProperties().getProperty("SECRET");
+  return !!s && given === s;
+}
 const SHEET_NAME = "الآراء";
 
 function sheet_() {
@@ -33,7 +38,7 @@ function json_(obj) {
 function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
-    if (body.secret !== SECRET) return json_({ ok: false, error: "unauthorized" });
+    if (!secretOk_(body.secret)) return json_({ ok: false, error: "unauthorized" });
     const x = body.entry || {};
     sheet_().appendRow([x.id, x.date, x.name || "", x.comment || ""]);
     return json_({ ok: true });
@@ -43,7 +48,7 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  if ((e.parameter.secret || "") !== SECRET) return json_({ ok: false, error: "unauthorized" });
+  if (!secretOk_(e.parameter.secret || "")) return json_({ ok: false, error: "unauthorized" });
   const rows = sheet_().getDataRange().getValues().slice(1);
   const entries = rows.filter(r => r[3]).map(r => ({
     id: String(r[0]),
