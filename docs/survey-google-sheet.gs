@@ -27,10 +27,49 @@ function sheet_() {
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);
     sh.appendRow(["id", "التاريخ", "الاسم", "الرأي"]);
-    sh.setFrozenRows(1);
-    sh.setRightToLeft(true);
+    formatSheet_(sh);
   }
   return sh;
+}
+
+// تنسيق الصف الواحد: خط Cairo، محاذاة لليمين، التفاف النص
+function formatRow_(sh, row) {
+  sh.getRange(row, 1, 1, 4)
+    .setFontFamily("Cairo").setFontSize(12).setFontColor("#1c2826")
+    .setVerticalAlignment("middle").setHorizontalAlignment("right")
+    .setWrap(true).setBackground(row % 2 ? "#ffffff" : "#f4f2ea");
+  sh.getRange(row, 2).setNumberFormat("yyyy/mm/dd  hh:mm").setHorizontalAlignment("center");
+  sh.autoResizeRows(row, 1);
+  if (sh.getRowHeight(row) < 44) sh.setRowHeight(row, 44);
+}
+
+// تنسيق الورقة كاملة (يمكن تشغيله يدوياً من المحرر: اختر formatSheet ثم تشغيل)
+function formatSheet() { formatSheet_(sheet_()); }
+
+function formatSheet_(sh) {
+  sh.getParent().setSpreadsheetTimeZone("Asia/Muscat");
+  sh.setRightToLeft(true);
+  sh.setFrozenRows(1);
+  // إخفاء عمود المعرّف والأعمدة الفارغة، وإبقاء: التاريخ، الاسم، الرأي
+  sh.hideColumns(1);
+  const maxCols = sh.getMaxColumns();
+  if (maxCols > 4) sh.hideColumns(5, maxCols - 4);
+  sh.setColumnWidth(2, 170);
+  sh.setColumnWidth(3, 190);
+  sh.setColumnWidth(4, 560);
+  // رأس الجدول
+  sh.getRange(1, 1, 1, 4)
+    .setFontFamily("Cairo").setFontSize(13).setFontWeight("bold")
+    .setFontColor("#ffffff").setBackground("#0e6b6b")
+    .setHorizontalAlignment("center").setVerticalAlignment("middle");
+  sh.setRowHeight(1, 46);
+  // تحويل التواريخ النصية القديمة إلى تواريخ حقيقية ثم تنسيق كل الصفوف
+  const last = sh.getLastRow();
+  for (let r = 2; r <= last; r++) {
+    const c = sh.getRange(r, 2), v = c.getValue();
+    if (v && !(v instanceof Date)) { const d = new Date(v); if (!isNaN(d)) c.setValue(d); }
+    formatRow_(sh, r);
+  }
 }
 
 function json_(obj) {
@@ -42,7 +81,10 @@ function doPost(e) {
     const body = JSON.parse(e.postData.contents);
     if (!secretOk_(body.secret)) return json_({ ok: false, error: "unauthorized" });
     const x = body.entry || {};
-    sheet_().appendRow([x.id, x.date, x.name || "", x.comment || ""]);
+    const sh = sheet_();
+    const d = new Date(x.date);
+    sh.appendRow([x.id, isNaN(d) ? x.date : d, x.name || "", x.comment || ""]);
+    formatRow_(sh, sh.getLastRow());
     return json_({ ok: true });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
